@@ -187,6 +187,18 @@ const els = {
   oddsStatus: document.getElementById("oddsStatus"),
   oddsProgress: document.getElementById("oddsProgress"),
   oddsProgressBar: document.getElementById("oddsProgressBar"),
+  groupsTabBtn: document.getElementById("groupsTabBtn"),
+  thirdTabBtn: document.getElementById("thirdTabBtn"),
+  bracketTabBtn: document.getElementById("bracketTabBtn"),
+  groupsTab: document.getElementById("groupsTab"),
+  thirdTab: document.getElementById("thirdTab"),
+  bracketTab: document.getElementById("bracketTab"),
+  predictionModeToggle: document.getElementById("predictionModeToggle"),
+  groupsModeLabel: document.getElementById("groupsModeLabel"),
+  thirdModeLabel: document.getElementById("thirdModeLabel"),
+  bracketModeLabel: document.getElementById("bracketModeLabel"),
+  predictionHelpBtn: document.getElementById("predictionHelpBtn"),
+  predictionHelp: document.getElementById("predictionHelp"),
   groupFilter: document.getElementById("groupFilter"),
   fixtureGroupFilter: document.getElementById("fixtureGroupFilter"),
   ticketMatchFilter: document.getElementById("ticketMatchFilter"),
@@ -212,6 +224,8 @@ const state = {
   selectedGroup: "all",
   selectedFixtureGroup: "all",
   selectedTicketMatch: "all",
+  activeTab: "groups",
+  predictionsEnabled: true,
   useLiveScores: true,
   sourceLabel: "Not loaded",
   sourceUpdatedAtUtc: null,
@@ -375,12 +389,14 @@ function getFixtureScore(fixture, options = {}) {
     return { home: null, away: null, source: "empty" };
   }
 
-  const prediction = state.predictions[fixture.id];
-  const home = safeNumber(prediction?.home);
-  const away = safeNumber(prediction?.away);
+  if (options.includePredictions !== false) {
+    const prediction = state.predictions[fixture.id];
+    const home = safeNumber(prediction?.home);
+    const away = safeNumber(prediction?.away);
 
-  if (prediction && (home !== null || away !== null)) {
-    return { home, away, source: prediction.source || "predicted" };
+    if (prediction && (home !== null || away !== null)) {
+      return { home, away, source: prediction.source || "predicted" };
+    }
   }
 
   if (state.useLiveScores && isLiveFixture(fixture)) {
@@ -912,6 +928,36 @@ function renderHeader(model) {
     : "Annexe C pending";
 }
 
+function selectedModeLabel() {
+  return state.predictionsEnabled
+    ? "Predicted view, using sidebar picks as results."
+    : "Current view, using official and live results only.";
+}
+
+function renderModeLabels() {
+  const label = selectedModeLabel();
+  els.groupsModeLabel.textContent = label;
+  els.thirdModeLabel.textContent = label;
+  els.bracketModeLabel.textContent = state.predictionsEnabled
+    ? "Projected path, using sidebar picks as results."
+    : "Current path, using official and live results only.";
+}
+
+function renderTabs() {
+  const tabs = [
+    { key: "groups", button: els.groupsTabBtn, panel: els.groupsTab },
+    { key: "third", button: els.thirdTabBtn, panel: els.thirdTab },
+    { key: "bracket", button: els.bracketTabBtn, panel: els.bracketTab },
+  ];
+
+  for (const tab of tabs) {
+    const active = tab.key === state.activeTab;
+    tab.button.classList.toggle("active", active);
+    tab.button.setAttribute("aria-selected", String(active));
+    tab.panel.hidden = !active;
+  }
+}
+
 function emptyState(message) {
   const template = document.getElementById("emptyStateTemplate");
   const node = template.content.firstElementChild.cloneNode(true);
@@ -923,14 +969,17 @@ function emptyState(message) {
 }
 
 function renderAll() {
-  const currentModel = computeTournament({ playedOnly: true });
-  const projectedModel = computeTournament();
-  renderHeader(projectedModel);
-  renderGroups(currentModel);
+  const activeModel = computeTournament(
+    state.predictionsEnabled ? {} : { includePredictions: false }
+  );
+  renderHeader(activeModel);
+  renderModeLabels();
+  renderTabs();
+  renderGroups(activeModel);
   renderFixtures();
-  renderBracket(projectedModel);
-  renderThirdPlace(projectedModel);
-  renderWarnings(projectedModel);
+  renderBracket(activeModel);
+  renderThirdPlace(activeModel);
+  renderWarnings(activeModel);
 }
 
 async function fetchJson(url) {
@@ -1026,6 +1075,7 @@ function setBusy(busy) {
     els.groupFilter,
     els.fixtureGroupFilter,
     els.ticketMatchFilter,
+    els.predictionModeToggle,
   ].forEach((node) => {
     if (node) node.disabled = busy;
   });
@@ -1172,9 +1222,41 @@ function clearPredictions() {
   renderAll();
 }
 
+function setActiveTab(tab) {
+  state.activeTab = tab;
+  renderAll();
+}
+
+function togglePredictionHelp(forceOpen) {
+  const open = forceOpen ?? els.predictionHelp.hidden;
+  els.predictionHelp.hidden = !open;
+  els.predictionHelpBtn.setAttribute("aria-expanded", String(open));
+}
+
 function bindEvents() {
   els.refreshBtn.addEventListener("click", bootFromSources);
   els.clearPredictionsBtn.addEventListener("click", clearPredictions);
+  els.groupsTabBtn.addEventListener("click", () => setActiveTab("groups"));
+  els.thirdTabBtn.addEventListener("click", () => setActiveTab("third"));
+  els.bracketTabBtn.addEventListener("click", () => setActiveTab("bracket"));
+  els.predictionModeToggle.addEventListener("change", () => {
+    state.predictionsEnabled = els.predictionModeToggle.checked;
+    renderAll();
+  });
+  els.predictionHelpBtn.addEventListener("click", (event) => {
+    event.stopPropagation();
+    togglePredictionHelp();
+  });
+  document.addEventListener("click", (event) => {
+    if (
+      els.predictionHelp.hidden ||
+      els.predictionHelp.contains(event.target) ||
+      els.predictionHelpBtn.contains(event.target)
+    ) {
+      return;
+    }
+    togglePredictionHelp(false);
+  });
   els.groupFilter.addEventListener("change", () => {
     state.selectedGroup = els.groupFilter.value;
     renderAll();

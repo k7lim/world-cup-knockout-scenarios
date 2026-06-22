@@ -38,71 +38,99 @@
             </div>
           </section>
 
-          <section class="section-block">
-            <div class="section-head">
-              <div>
-                <h2>Group Status Now</h2>
-                <p>Played matches only. First and second advance; third enters the ranking.</p>
+          <section class="view-shell" aria-label="Tournament views">
+            <div class="view-toolbar">
+              <div class="tabs" role="tablist" aria-label="Tournament views">
+                <button id="groupsTabBtn" class="tab-btn active" type="button" role="tab" aria-selected="true" aria-controls="groupsTab">
+                  Groups
+                </button>
+                <button id="thirdTabBtn" class="tab-btn" type="button" role="tab" aria-selected="false" aria-controls="thirdTab">
+                  Third Place Qualifiers
+                </button>
+                <button id="bracketTabBtn" class="tab-btn" type="button" role="tab" aria-selected="false" aria-controls="bracketTab">
+                  Bracket
+                </button>
               </div>
-              <select id="groupFilter" aria-label="Filter groups">
-                <option value="all">All groups</option>
-              </select>
-            </div>
-            <div id="groupsGrid" class="groups-grid"></div>
-          </section>
 
-          <section class="section-block">
-            <div class="section-head">
-              <div>
-                <h2>Upcoming Predictions</h2>
-                <p>Favorite and scoreline for each unplayed group match. Edit a score to test your own call.</p>
-              </div>
-              <div class="section-tools">
-                <select id="fixtureGroupFilter" aria-label="Filter fixtures by group">
+              <label class="switch-control" for="predictionModeToggle">
+                <span>Predictions</span>
+                <input id="predictionModeToggle" type="checkbox" checked />
+                <span class="switch-track" aria-hidden="true"></span>
+              </label>
+            </div>
+
+            <section id="groupsTab" class="tab-panel" role="tabpanel" aria-labelledby="groupsTabBtn">
+              <div class="section-head">
+                <div>
+                  <h2>Groups</h2>
+                  <p id="groupsModeLabel">Predicted table, using sidebar picks as results.</p>
+                </div>
+                <select id="groupFilter" aria-label="Filter groups">
                   <option value="all">All groups</option>
                 </select>
               </div>
-            </div>
-            <div id="fixturesList" class="fixtures-list"></div>
-          </section>
+              <div id="groupsGrid" class="groups-grid"></div>
+            </section>
 
-          <section class="section-block">
-            <div class="section-head">
-              <div>
-                <h2>Ticket Lookup</h2>
-                <p>Pick a knockout match to see the projected teams or possible path.</p>
+            <section id="thirdTab" class="tab-panel" role="tabpanel" aria-labelledby="thirdTabBtn" hidden>
+              <div class="section-head">
+                <div>
+                  <h2>Third Place Qualifiers</h2>
+                  <p id="thirdModeLabel">Predicted ranking, using sidebar picks as results.</p>
+                </div>
+                <div class="metric-row compact">
+                  <div>
+                    <span class="label">Qualified</span>
+                    <strong id="qualifiedCount">0 / 32</strong>
+                  </div>
+                  <div>
+                    <span class="label">Annexe option</span>
+                    <strong id="annexeOption">-</strong>
+                  </div>
+                </div>
               </div>
-              <div class="section-tools">
-                <select id="ticketMatchFilter" aria-label="Filter knockout match">
-                  <option value="all">All knockout matches</option>
-                </select>
-                <div id="annexeBadge" class="badge">Annexe C</div>
+              <ol id="thirdPlaceList" class="third-list large"></ol>
+              <h3>Watch Items</h3>
+              <div id="warningsList" class="warnings"></div>
+            </section>
+
+            <section id="bracketTab" class="tab-panel" role="tabpanel" aria-labelledby="bracketTabBtn" hidden>
+              <div class="section-head">
+                <div>
+                  <h2>March Madness Style Bracket</h2>
+                  <p id="bracketModeLabel">Projected path, using sidebar picks as results.</p>
+                </div>
+                <div class="section-tools">
+                  <select id="ticketMatchFilter" aria-label="Filter knockout match">
+                    <option value="all">All knockout matches</option>
+                  </select>
+                  <div id="annexeBadge" class="badge">Annexe C</div>
+                </div>
               </div>
-            </div>
-            <div id="bracketGrid" class="bracket-grid"></div>
+              <div id="bracketGrid" class="bracket-grid"></div>
+            </section>
           </section>
         </section>
 
-        <aside class="panel side">
+        <aside class="panel side prediction-panel">
           <div class="panel-heading">
-            <h2>Qualification</h2>
-          </div>
-          <div class="metric-row">
             <div>
-              <span class="label">Qualified</span>
-              <strong id="qualifiedCount">0 / 32</strong>
+              <h2>Predictions</h2>
+              <p>Upcoming group matches</p>
             </div>
-            <div>
-              <span class="label">Annexe option</span>
-              <strong id="annexeOption">-</strong>
+            <button id="predictionHelpBtn" class="icon-btn" type="button" aria-label="How Predictions Are Made" aria-expanded="false" aria-controls="predictionHelp">?</button>
+            <div id="predictionHelp" class="popover" hidden>
+              <h3>How Predictions Are Made</h3>
+              <p>Odds-based picks use available match-winner, totals, spreads, and correct-score markets. Manual score edits override odds picks until reset.</p>
             </div>
           </div>
 
-          <h3>Best Third-Place Teams</h3>
-          <ol id="thirdPlaceList" class="third-list"></ol>
-
-          <h3>Watch Items</h3>
-          <div id="warningsList" class="warnings"></div>
+          <div class="section-tools stacked">
+            <select id="fixtureGroupFilter" aria-label="Filter fixtures by group">
+              <option value="all">All groups</option>
+            </select>
+          </div>
+          <div id="fixturesList" class="fixtures-list"></div>
         </aside>
       </main>
     </div>
