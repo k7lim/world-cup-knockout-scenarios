@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>World Cup 2026 Knockout Outlook</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">FIFA World Cup 2026</p>
+          <h1>Knockout Outlook</h1>
+        </div>
+        <div class="status-strip">
+          <div>
+            <span class="label">Data</span>
+            <strong id="apiState">Not loaded</strong>
+          </div>
+          <div>
+            <span class="label">Updated</span>
+            <strong id="updatedAt">-</strong>
+          </div>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <section class="main-column">
+          <section class="tool-strip" aria-label="Prediction tools">
+            <p id="oddsStatus">Loading local tournament file...</p>
+            <div class="tool-actions">
+              <button id="refreshBtn" class="secondary-btn" type="button">Refresh</button>
+              <button id="clearPredictionsBtn" class="secondary-btn danger" type="button">Reset Picks</button>
+            </div>
+            <div id="oddsProgress" class="progress" hidden>
+              <div id="oddsProgressBar"></div>
+            </div>
+          </section>
+
+          <section class="section-block">
+            <div class="section-head">
+              <div>
+                <h2>Group Status Now</h2>
+                <p>Played matches only. First and second advance; third enters the ranking.</p>
+              </div>
+              <select id="groupFilter" aria-label="Filter groups">
+                <option value="all">All groups</option>
+              </select>
+            </div>
+            <div id="groupsGrid" class="groups-grid"></div>
+          </section>
+
+          <section class="section-block">
+            <div class="section-head">
+              <div>
+                <h2>Upcoming Predictions</h2>
+                <p>Favorite and scoreline for each unplayed group match. Edit a score to test your own call.</p>
+              </div>
+              <div class="section-tools">
+                <select id="fixtureGroupFilter" aria-label="Filter fixtures by group">
+                  <option value="all">All groups</option>
+                </select>
+              </div>
+            </div>
+            <div id="fixturesList" class="fixtures-list"></div>
+          </section>
+
+          <section class="section-block">
+            <div class="section-head">
+              <div>
+                <h2>Ticket Lookup</h2>
+                <p>Pick a knockout match to see the projected teams or possible path.</p>
+              </div>
+              <div class="section-tools">
+                <select id="ticketMatchFilter" aria-label="Filter knockout match">
+                  <option value="all">All knockout matches</option>
+                </select>
+                <div id="annexeBadge" class="badge">Annexe C</div>
+              </div>
+            </div>
+            <div id="bracketGrid" class="bracket-grid"></div>
+          </section>
+        </section>
+
+        <aside class="panel side">
+          <div class="panel-heading">
+            <h2>Qualification</h2>
+          </div>
+          <div class="metric-row">
+            <div>
+              <span class="label">Qualified</span>
+              <strong id="qualifiedCount">0 / 32</strong>
+            </div>
+            <div>
+              <span class="label">Annexe option</span>
+              <strong id="annexeOption">-</strong>
+            </div>
+          </div>
+
+          <h3>Best Third-Place Teams</h3>
+          <ol id="thirdPlaceList" class="third-list"></ol>
+
+          <h3>Watch Items</h3>
+          <div id="warningsList" class="warnings"></div>
+        </aside>
+      </main>
+    </div>
+
+    <template id="emptyStateTemplate">
+      <div class="empty-state">
+        <h2>Load the local tournament file.</h2>
+        <p>The app can run without paid API access.</p>
+      </div>
+    </template>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

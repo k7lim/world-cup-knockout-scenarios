@@ -1,0 +1,15 @@
+{
+  "name": "world-cup-2026-explorer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test",
+    "extract:annexe-c": "node scripts/extract-annexe-c.js",
+    "build:seed": "node scripts/build-openfootball-seed.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

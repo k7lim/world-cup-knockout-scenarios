@@ -1,0 +1,5 @@
+.env
+node_modules/
+.DS_Store
+.just/
+data/odds-refresh-cache.json
