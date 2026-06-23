@@ -1289,23 +1289,28 @@ async function postJson(url, body) {
   return data;
 }
 
+function setOddsStatus(message) {
+  els.oddsStatus.textContent = message;
+  els.oddsStatus.hidden = !message;
+}
+
 async function ensureAnnexe() {
   if (!state.annexe.length) {
     state.annexe = await fetchJson("/data/annexe-c.json");
   }
 }
 
-async function loadLocalData() {
+async function loadLocalData(options = {}) {
   setBusy(true);
   try {
     await ensureAnnexe();
     const seed = await fetchJson(LOCAL_SEED_URL);
     normalizeLocalSeed(seed);
-    els.oddsStatus.textContent = "Tournament data loaded.";
+    if (options.clearStatusOnSuccess !== false) setOddsStatus("");
     renderAll();
   } catch (error) {
     els.apiState.textContent = "Error";
-    els.oddsStatus.textContent = error.message;
+    setOddsStatus(error.message);
     renderAll();
   } finally {
     setBusy(false);
@@ -1317,8 +1322,7 @@ async function refreshSourceFromGitHub() {
   const seed = await postJson("/api/openfootball/refresh", {});
   normalizeLocalSeed(seed);
   const completed = seed.fixtures.filter((fixture) => fixture.statusShort === "FT").length;
-  els.oddsStatus.textContent =
-    `Updated from openfootball/worldcup.json: ${completed} completed fixture${completed === 1 ? "" : "s"}.`;
+  setOddsStatus(`Updated from openfootball/worldcup.json: ${completed} completed fixture${completed === 1 ? "" : "s"}.`);
   renderAll();
   return seed;
 }
@@ -1329,7 +1333,7 @@ async function refreshData() {
     await refreshSourceFromGitHub();
   } catch (error) {
     els.apiState.textContent = "Error";
-    els.oddsStatus.textContent = error.message;
+    setOddsStatus(error.message);
     renderAll();
   } finally {
     setBusy(false);
@@ -1341,8 +1345,8 @@ async function bootFromSources() {
   try {
     await refreshSourceFromGitHub();
   } catch (error) {
-    els.oddsStatus.textContent = `Could not update GitHub source: ${error.message}. Loading local snapshot.`;
-    await loadLocalData();
+    setOddsStatus(`Could not update GitHub source: ${error.message}. Loading local snapshot.`);
+    await loadLocalData({ clearStatusOnSuccess: false });
   }
 
   try {
@@ -1453,10 +1457,11 @@ async function seedFromOdds(mode = "seedEmpty", options = {}) {
 
   if (!fixtures.length) {
     if (!auto) {
-      els.oddsStatus.textContent =
+      setOddsStatus(
         mode === "reseedOdds"
           ? "No existing odds predictions to reseed."
-          : "No empty group-stage predictions to seed.";
+          : "No empty group-stage predictions to seed."
+      );
     }
     return;
   }
@@ -1465,12 +1470,13 @@ async function seedFromOdds(mode = "seedEmpty", options = {}) {
   els.oddsProgress.hidden = false;
   els.oddsProgressBar.style.width = "0%";
   if (mode === "syncOdds") {
-    els.oddsStatus.textContent = `Checking cached odds for ${fixtures.length} unplayed fixture${fixtures.length === 1 ? "" : "s"}...`;
+    setOddsStatus(`Checking cached odds for ${fixtures.length} unplayed fixture${fixtures.length === 1 ? "" : "s"}...`);
   } else {
-    els.oddsStatus.textContent =
+    setOddsStatus(
       mode === "reseedOdds"
         ? `Refreshing odds for ${fixtures.length} existing odds prediction${fixtures.length === 1 ? "" : "s"}...`
-        : `Refreshing odds for ${fixtures.length} empty fixture${fixtures.length === 1 ? "" : "s"}...`;
+        : `Refreshing odds for ${fixtures.length} empty fixture${fixtures.length === 1 ? "" : "s"}...`
+    );
   }
 
   try {
@@ -1483,16 +1489,18 @@ async function seedFromOdds(mode = "seedEmpty", options = {}) {
     const responseWarnings = evidenceWarningsFromResponse(payload);
     state.sourceWarnings = responseWarnings;
     if (mode === "syncOdds") {
-      els.oddsStatus.textContent =
+      setOddsStatus(
         `Updated from GitHub, then synced ${applied} odds prediction${applied === 1 ? "" : "s"}` +
-        `${skipped ? `; skipped ${skipped}` : ""}.`;
+          `${skipped ? `; skipped ${skipped}` : ""}.`
+      );
     } else {
-      els.oddsStatus.textContent =
+      setOddsStatus(
         `${mode === "reseedOdds" ? "Reseeded" : "Seeded"} ${applied} odds prediction${applied === 1 ? "" : "s"}` +
-        `${skipped ? `; skipped ${skipped}` : ""}.`;
+          `${skipped ? `; skipped ${skipped}` : ""}.`
+      );
     }
   } catch (error) {
-    els.oddsStatus.textContent = `Could not refresh odds predictions: ${error.message}`;
+    setOddsStatus(`Could not refresh odds predictions: ${error.message}`);
   } finally {
     if (!auto) setBusy(false);
     els.oddsProgress.hidden = true;
@@ -1505,7 +1513,7 @@ function clearPredictions() {
   state.marketEvidence = {};
   savePredictions();
   saveMarketEvidence();
-  els.oddsStatus.textContent = "Picks cleared.";
+  setOddsStatus("Picks cleared.");
   renderAll();
 }
 
@@ -1515,7 +1523,7 @@ async function resetPredictionsFromData() {
   savePredictions();
   saveMarketEvidence();
   await bootFromSources();
-  els.oddsStatus.textContent = "Picks reset from data.";
+  setOddsStatus("Picks reset from data.");
   renderAll();
 }
 

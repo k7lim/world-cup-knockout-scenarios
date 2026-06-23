@@ -1289,23 +1289,28 @@ async function postJson(url, body) {
   return data;
 }
 
+function setOddsStatus(message) {
+  els.oddsStatus.textContent = message;
+  els.oddsStatus.hidden = !message;
+}
+
 async function ensureAnnexe() {
   if (!state.annexe.length) {
     state.annexe = await fetchJson("data/annexe-c.json");
   }
 }
 
-async function loadLocalData() {
+async function loadLocalData(options = {}) {
   setBusy(true);
   try {
     await ensureAnnexe();
     const seed = await fetchJson(LOCAL_SEED_URL);
     normalizeLocalSeed(seed);
-    els.oddsStatus.textContent = "Tournament data loaded.";
+    if (options.clearStatusOnSuccess !== false) setOddsStatus("");
     renderAll();
   } catch (error) {
     els.apiState.textContent = "Error";
-    els.oddsStatus.textContent = error.message;
+    setOddsStatus(error.message);
     renderAll();
   } finally {
     setBusy(false);
@@ -1325,7 +1330,7 @@ async function refreshData() {
     await refreshSourceFromGitHub();
   } catch (error) {
     els.apiState.textContent = "Error";
-    els.oddsStatus.textContent = error.message;
+    setOddsStatus(error.message);
     renderAll();
   } finally {
     setBusy(false);
@@ -1432,7 +1437,7 @@ function applyOddsImport(payload, mode, options = {}) {
 }
 
 async function seedFromOdds(mode = "seedEmpty", options = {}) {
-  els.oddsStatus.textContent = "Odds refresh is unavailable on the static GitHub Pages build.";
+  setOddsStatus("Odds refresh is unavailable on the static GitHub Pages build.");
   renderAll();
 }
 
@@ -1441,7 +1446,7 @@ function clearPredictions() {
   state.marketEvidence = {};
   savePredictions();
   saveMarketEvidence();
-  els.oddsStatus.textContent = "Picks cleared.";
+  setOddsStatus("Picks cleared.");
   renderAll();
 }
 
@@ -1451,7 +1456,7 @@ async function resetPredictionsFromData() {
   savePredictions();
   saveMarketEvidence();
   await bootFromSources();
-  els.oddsStatus.textContent = "Picks reset from data.";
+  setOddsStatus("Picks reset from data.");
   renderAll();
 }
 

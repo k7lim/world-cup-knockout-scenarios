@@ -66,7 +66,7 @@ function setBusy`
     .replace(
       /async function seedFromOdds\(mode = "seedEmpty", options = \{\}\) \{[\s\S]*?\n\}\n\nfunction clearPredictions/,
       `async function seedFromOdds(mode = "seedEmpty", options = {}) {
-  els.oddsStatus.textContent = "Odds refresh is unavailable on the static GitHub Pages build.";
+  setOddsStatus("Odds refresh is unavailable on the static GitHub Pages build.");
   renderAll();
 }
 
