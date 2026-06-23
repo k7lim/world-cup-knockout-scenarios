@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "world_cup",
+  "project_id": "5ebb05a0-a8f4-425a-91c6-37d67fcbe669"
+}

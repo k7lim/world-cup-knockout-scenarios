@@ -1089,6 +1089,17 @@ tr:last-child td {
   color: var(--muted);
 }
 
+.group-table tbody tr.out .rank-pill {
+  opacity: 0.72;
+}
+
+.group-status-pill {
+  margin-left: 6px;
+  min-height: 16px;
+  padding: 2px 6px;
+  font-size: 10px;
+}
+
 .warnings {
   display: grid;
   gap: 8px;

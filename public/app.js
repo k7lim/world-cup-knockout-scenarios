@@ -704,6 +704,7 @@ function renderTeamCell(team) {
 function renderGroups(model) {
   els.groupsGrid.innerHTML = "";
   const groups = state.selectedGroup === "all" ? GROUPS : [state.selectedGroup];
+  const qualifyingThirdGroups = new Set((model?.thirdQualifierGroups || "").split(""));
 
   if (!state.standingsGroups.size) {
     els.groupsGrid.appendChild(emptyState());
@@ -734,9 +735,20 @@ function renderGroups(model) {
     const body = el("tbody");
 
     rows.forEach((team, index) => {
-      const row = el("tr", `rank-${index + 1}`);
+      const isThird = index === 2;
+      const qualifiesThird = isThird && qualifyingThirdGroups.has(team.group);
+      const isOutThird = isThird && !qualifiesThird;
+      const row = el("tr", `rank-${index + 1}${isOutThird ? " out" : ""}`);
       const rank = el("td");
       rank.appendChild(el("span", "rank-pill", String(index + 1)));
+      if (isOutThird) {
+        const status = el("span", "group-status-pill status-pill out", "Out");
+        status.title = `Group ${team.group || "-"} third-place team does not qualify`;
+        status.ariaLabel = "Third place does not qualify";
+        row.setAttribute("aria-label", `Group ${team.group || "-"} third-place team does not qualify for knockout spots`);
+        row.title = `Group ${team.group || "-"} third-place team does not qualify for knockout spots`;
+        rank.appendChild(status);
+      }
       const teamTd = el("td", "team-col");
       teamTd.appendChild(renderTeamCell(team));
       row.append(rank, teamTd);
