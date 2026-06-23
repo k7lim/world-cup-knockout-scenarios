@@ -103,6 +103,7 @@ h3 {
 
 .status-strip > div,
 .metric-row > div {
+  position: relative;
   min-width: 0;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -118,6 +119,12 @@ h3 {
   font-size: 13px;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.status-strip a {
+  color: var(--blue);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .workspace {
@@ -178,6 +185,13 @@ h3 {
   background: #fff;
   color: var(--ink);
   font-weight: 900;
+}
+
+.icon-btn.tiny {
+  width: 22px;
+  height: 22px;
+  flex-basis: 22px;
+  font-size: 12px;
 }
 
 .popover {
@@ -388,6 +402,10 @@ h3 {
 }
 
 .section-tools.stacked select {
+  width: 100%;
+}
+
+.section-tools.stacked .secondary-btn {
   width: 100%;
 }
 
@@ -951,51 +969,102 @@ tr:last-child td {
 
 .metric-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
 }
 
 .metric-row.compact {
-  min-width: min(100%, 260px);
+  min-width: min(100%, 400px);
 }
 
-.third-list {
-  display: grid;
-  gap: 7px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.third-list li {
-  display: grid;
-  grid-template-columns: 22px minmax(0, 1fr) 72px;
-  gap: 8px;
+.metric-label-row {
+  display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.metric-label-row .label {
+  margin-bottom: 0;
+}
+
+.metric-popover {
+  top: 34px;
+  right: 0;
+}
+
+.third-table-shell {
+  overflow-x: auto;
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 8px;
-  background: #fff;
-  font-size: 12px;
+  background: var(--surface);
 }
 
-.third-list.large {
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
-  gap: 10px;
+.third-table {
+  min-width: 840px;
 }
 
-.third-list.large li {
-  min-height: 48px;
+.third-table th,
+.third-table td {
+  padding: 9px 8px;
 }
 
-.third-list li.out {
-  opacity: 0.55;
+.third-table th:first-child,
+.third-table td:first-child {
+  width: 36px;
 }
 
-.third-list .stats {
+.third-table th:nth-child(3),
+.third-table td:nth-child(3) {
+  width: 82px;
+}
+
+.third-table th:last-child,
+.third-table td:last-child {
+  width: 92px;
+}
+
+.third-table tbody tr.out {
+  opacity: 0.58;
+}
+
+.group-pill {
+  display: inline-flex;
+  min-width: 64px;
+  min-height: 24px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-soft);
   color: var(--muted);
-  text-align: right;
-  font-weight: 800;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1.1;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.status-pill {
+  display: inline-flex;
+  min-height: 24px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.status-pill.qualified {
+  background: #d9eee8;
+  color: var(--green);
+}
+
+.status-pill.out {
+  background: #eef0ee;
+  color: var(--muted);
 }
 
 .warnings {

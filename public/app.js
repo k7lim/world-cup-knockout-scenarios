@@ -278,6 +278,8 @@ const els = {
   bracketModeLabel: document.getElementById("bracketModeLabel"),
   predictionHelpBtn: document.getElementById("predictionHelpBtn"),
   predictionHelp: document.getElementById("predictionHelp"),
+  annexeHelpBtn: document.getElementById("annexeHelpBtn"),
+  annexeHelp: document.getElementById("annexeHelp"),
   groupFilter: document.getElementById("groupFilter"),
   fixtureGroupFilter: document.getElementById("fixtureGroupFilter"),
   fixturesToggleBtn: document.getElementById("fixturesToggleBtn"),
@@ -287,6 +289,7 @@ const els = {
   bracketGrid: document.getElementById("bracketGrid"),
   qualifiedCount: document.getElementById("qualifiedCount"),
   annexeOption: document.getElementById("annexeOption"),
+  thirdQualifierGroups: document.getElementById("thirdQualifierGroups"),
   annexeBadge: document.getElementById("annexeBadge"),
   thirdPlaceList: document.getElementById("thirdPlaceList"),
   warningsHeading: document.getElementById("warningsHeading"),
@@ -1100,13 +1103,50 @@ function renderBracketTeam(slot, team) {
 
 function renderThirdPlace(model) {
   els.thirdPlaceList.innerHTML = "";
+  const table = el("table", "third-table");
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th>#</th>
+        <th class="team-col">Team</th>
+        <th>Group</th>
+        <th>MP</th>
+        <th>W</th>
+        <th>D</th>
+        <th>L</th>
+        <th>GD</th>
+        <th>GF</th>
+        <th>Pts</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+  `;
+  const body = el("tbody");
   model.thirdRankings.forEach((team, index) => {
-    const row = el("li", index >= 8 ? "out" : "");
-    row.appendChild(el("span", "rank-pill", String(index + 1)));
-    row.appendChild(renderTeamCell(team));
-    row.appendChild(el("span", "stats", index < 8 ? "Qualifies" : `${team.points} pts`));
-    els.thirdPlaceList.appendChild(row);
+    const qualifies = index < 8;
+    const row = el("tr", `rank-${index + 1}${qualifies ? "" : " out"}`);
+    const rank = el("td");
+    rank.appendChild(el("span", "rank-pill", String(index + 1)));
+    const teamTd = el("td", "team-col");
+    teamTd.appendChild(renderTeamCell(team));
+    const groupTd = el("td");
+    groupTd.appendChild(el("span", "group-pill", `Group ${team.group || "-"}`));
+    const statusTd = el("td");
+    statusTd.appendChild(el("span", `status-pill ${qualifies ? "qualified" : "out"}`, qualifies ? "Qualifies" : "Out"));
+
+    row.append(rank, teamTd, groupTd);
+    row.appendChild(el("td", "", String(team.played)));
+    row.appendChild(el("td", "", String(team.win)));
+    row.appendChild(el("td", "", String(team.draw)));
+    row.appendChild(el("td", "", String(team.lose)));
+    row.appendChild(el("td", "", String(team.gd)));
+    row.appendChild(el("td", "", String(team.gf)));
+    row.appendChild(el("td", "", String(team.points)));
+    row.appendChild(statusTd);
+    body.appendChild(row);
   });
+  table.appendChild(body);
+  els.thirdPlaceList.appendChild(table);
 }
 
 function renderWarnings(model) {
@@ -1136,13 +1176,28 @@ function isCriticalWarning(warning) {
 }
 
 function renderHeader(model) {
-  els.apiState.textContent = state.sourceLabel || "Not loaded";
+  els.apiState.replaceChildren();
+  if (state.sourceMeta?.url) {
+    const sourceLink = el("a", "", state.sourceLabel || state.sourceMeta.url);
+    sourceLink.href = state.sourceMeta.url;
+    sourceLink.target = "_blank";
+    sourceLink.rel = "noopener noreferrer";
+    els.apiState.appendChild(sourceLink);
+  } else {
+    els.apiState.textContent = state.sourceLabel || "Not loaded";
+  }
   els.updatedAt.textContent = state.sourceUpdatedAtUtc
     ? formatTime(state.sourceUpdatedAtUtc)
     : "-";
 
   els.qualifiedCount.textContent = `${model.qualifiedTeams.length} / 32`;
   els.annexeOption.textContent = model.annexeRow ? `#${model.annexeRow.option}` : "-";
+  els.thirdQualifierGroups.textContent = model.thirdQualifierGroups
+    ? model.thirdQualifierGroups.split("").join(" ")
+    : "-";
+  els.thirdQualifierGroups.title = model.thirdQualifierGroups
+    ? model.thirdQualifierGroups.split("").map((group) => `Group ${group}`).join(", ")
+    : "";
   els.annexeBadge.textContent = model.annexeRow
     ? `Annexe C option ${model.annexeRow.option}`
     : "Annexe C pending";
@@ -1455,6 +1510,12 @@ function togglePredictionHelp(forceOpen) {
   els.predictionHelpBtn.setAttribute("aria-expanded", String(open));
 }
 
+function toggleAnnexeHelp(forceOpen) {
+  const open = forceOpen ?? els.annexeHelp.hidden;
+  els.annexeHelp.hidden = !open;
+  els.annexeHelpBtn.setAttribute("aria-expanded", String(open));
+}
+
 function bindEvents() {
   els.refreshBtn.addEventListener("click", bootFromSources);
   els.clearPredictionsBtn.addEventListener("click", clearPredictions);
@@ -1469,15 +1530,25 @@ function bindEvents() {
     event.stopPropagation();
     togglePredictionHelp();
   });
+  els.annexeHelpBtn.addEventListener("click", (event) => {
+    event.stopPropagation();
+    toggleAnnexeHelp();
+  });
   document.addEventListener("click", (event) => {
     if (
-      els.predictionHelp.hidden ||
-      els.predictionHelp.contains(event.target) ||
-      els.predictionHelpBtn.contains(event.target)
+      !els.predictionHelp.hidden &&
+      !els.predictionHelp.contains(event.target) &&
+      !els.predictionHelpBtn.contains(event.target)
     ) {
-      return;
+      togglePredictionHelp(false);
     }
-    togglePredictionHelp(false);
+    if (
+      !els.annexeHelp.hidden &&
+      !els.annexeHelp.contains(event.target) &&
+      !els.annexeHelpBtn.contains(event.target)
+    ) {
+      toggleAnnexeHelp(false);
+    }
   });
   els.groupFilter.addEventListener("change", () => {
     state.selectedGroup = els.groupFilter.value;

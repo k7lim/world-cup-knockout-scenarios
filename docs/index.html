@@ -43,6 +43,7 @@
             <select id="fixtureGroupFilter" aria-label="Filter fixtures by group">
               <option value="all">All groups</option>
             </select>
+            <button id="clearPredictionsBtn" class="secondary-btn danger" type="button">Reset Picks</button>
           </div>
           <div id="fixturesList" class="fixtures-list"></div>
           <button id="fixturesToggleBtn" class="secondary-btn fixtures-toggle" type="button" aria-controls="fixturesList" aria-expanded="false" hidden>
@@ -55,7 +56,6 @@
             <p id="oddsStatus">Loading local tournament file...</p>
             <div class="tool-actions">
               <button id="refreshBtn" class="secondary-btn" type="button">Refresh</button>
-              <button id="clearPredictionsBtn" class="secondary-btn danger" type="button">Reset Picks</button>
             </div>
             <div id="oddsProgress" class="progress" hidden>
               <div id="oddsProgressBar"></div>
@@ -109,12 +109,23 @@
                     <strong id="qualifiedCount">0 / 32</strong>
                   </div>
                   <div>
-                    <span class="label">Annexe option</span>
+                    <span class="metric-label-row">
+                      <span class="label">Annexe option</span>
+                      <button id="annexeHelpBtn" class="icon-btn tiny" type="button" aria-label="What the Annexe option means" aria-expanded="false" aria-controls="annexeHelp">?</button>
+                    </span>
                     <strong id="annexeOption">-</strong>
+                    <div id="annexeHelp" class="popover metric-popover" hidden>
+                      <h3>Annexe Option</h3>
+                      <p>The option is the FIFA Annexe C row for the eight third-place groups that qualify. It assigns those teams to the Round of 32 winner slots.</p>
+                    </div>
+                  </div>
+                  <div>
+                    <span class="label">Third-place groups</span>
+                    <strong id="thirdQualifierGroups">-</strong>
                   </div>
                 </div>
               </div>
-              <ol id="thirdPlaceList" class="third-list large"></ol>
+              <div id="thirdPlaceList" class="third-table-shell" aria-label="Third-place ranking table"></div>
               <h3 id="warningsHeading">Watch Items</h3>
               <div id="warningsList" class="warnings"></div>
             </section>
