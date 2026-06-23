@@ -816,7 +816,6 @@ function renderFixtures() {
     const meta = el("div", "fixture-meta");
     meta.appendChild(el("strong", "", predictionSummary(fixture, score)));
     meta.appendChild(el("span", "", `Group ${fixture.group} | ${formatTime(fixture.date)}`));
-    meta.appendChild(el("span", `source-pill ${sourceClass(score.source)}`, sourceLabel(score.source)));
 
     card.append(home, scoreBox, away, meta);
     els.fixturesList.appendChild(card);
