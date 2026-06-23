@@ -122,7 +122,7 @@ h3 {
 
 .workspace {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 310px;
+  grid-template-columns: minmax(360px, 420px) minmax(0, 1fr);
   gap: 18px;
   padding: 18px;
 }
@@ -248,14 +248,37 @@ h3 {
 }
 
 .switch-control {
-  display: inline-flex;
+  position: relative;
+  display: inline-grid;
+  grid-template-columns: minmax(0, max-content) auto minmax(0, max-content);
   flex: 0 0 auto;
   align-items: center;
-  gap: 9px;
+  gap: 8px;
   color: var(--muted);
   font-size: 12px;
   font-weight: 900;
   text-transform: uppercase;
+}
+
+.switch-label {
+  max-width: 22ch;
+  line-height: 1.15;
+}
+
+.switch-label-off {
+  text-align: right;
+}
+
+.switch-label-on {
+  color: var(--ink);
+}
+
+.switch-control:has(input:not(:checked)) .switch-label-off {
+  color: var(--ink);
+}
+
+.switch-control:has(input:not(:checked)) .switch-label-on {
+  color: var(--muted);
 }
 
 .switch-control input {
@@ -1036,6 +1059,12 @@ tr:last-child td {
   white-space: normal;
 }
 
+.fixtures-toggle {
+  display: none;
+  width: 100%;
+  margin-top: 12px;
+}
+
 code {
   border-radius: 5px;
   background: #e9ece8;
@@ -1078,7 +1107,7 @@ code {
   }
 
   .switch-control {
-    justify-content: space-between;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   }
 
   .bracket-grid {
@@ -1147,6 +1176,14 @@ code {
 
   .prediction-panel .fixture-card {
     grid-template-columns: 1fr;
+  }
+
+  .prediction-panel .fixture-card.mobile-collapsed {
+    display: none;
+  }
+
+  .fixtures-toggle:not([hidden]) {
+    display: block;
   }
 
   h1 {

@@ -280,6 +280,7 @@ const els = {
   predictionHelp: document.getElementById("predictionHelp"),
   groupFilter: document.getElementById("groupFilter"),
   fixtureGroupFilter: document.getElementById("fixtureGroupFilter"),
+  fixturesToggleBtn: document.getElementById("fixturesToggleBtn"),
   ticketMatchFilter: document.getElementById("ticketMatchFilter"),
   groupsGrid: document.getElementById("groupsGrid"),
   fixturesList: document.getElementById("fixturesList"),
@@ -303,6 +304,7 @@ const state = {
   odds: new Map(),
   selectedGroup: "all",
   selectedFixtureGroup: "all",
+  fixtureListExpanded: false,
   selectedTicketMatch: "all",
   activeTab: "groups",
   predictionsEnabled: true,
@@ -771,13 +773,17 @@ function renderFixtures() {
 
   if (!fixtures.length) {
     els.fixturesList.appendChild(emptyState("No fixtures match the current filter."));
+    els.fixturesToggleBtn.hidden = true;
     return;
   }
 
-  for (const fixture of fixtures) {
+  fixtures.forEach((fixture, index) => {
     const score = getFixtureScore(fixture);
     const locked = score.source === "locked";
     const card = el("article", `fixture-card ${locked ? "locked" : ""}`);
+    if (!state.fixtureListExpanded && index >= 4) {
+      card.classList.add("mobile-collapsed");
+    }
 
     const home = el("div", "fixture-team");
     home.appendChild(teamLogo(fixture.home));
@@ -799,7 +805,14 @@ function renderFixtures() {
 
     card.append(home, scoreBox, away, meta);
     els.fixturesList.appendChild(card);
-  }
+  });
+
+  const hasExtraFixtures = fixtures.length > 4;
+  els.fixturesToggleBtn.hidden = !hasExtraFixtures;
+  els.fixturesToggleBtn.textContent = state.fixtureListExpanded
+    ? "Show fewer matches"
+    : `Show ${fixtures.length - 4} more match${fixtures.length - 4 === 1 ? "" : "es"}`;
+  els.fixturesToggleBtn.setAttribute("aria-expanded", String(state.fixtureListExpanded));
 }
 
 function predictionSummary(fixture, score) {
@@ -1408,6 +1421,11 @@ function bindEvents() {
   });
   els.fixtureGroupFilter.addEventListener("change", () => {
     state.selectedFixtureGroup = els.fixtureGroupFilter.value;
+    state.fixtureListExpanded = false;
+    renderFixtures();
+  });
+  els.fixturesToggleBtn.addEventListener("click", () => {
+    state.fixtureListExpanded = !state.fixtureListExpanded;
     renderFixtures();
   });
   els.ticketMatchFilter.addEventListener("change", () => {
