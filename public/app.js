@@ -716,7 +716,6 @@ function renderGroups(model) {
     const card = el("article", "group-table");
     const title = el("div", "group-title");
     title.appendChild(el("strong", "", `Group ${group}`));
-    title.appendChild(el("span", "", `${rows.length} teams`));
     card.appendChild(title);
 
     const table = el("table");
