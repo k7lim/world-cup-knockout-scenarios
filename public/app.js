@@ -790,14 +790,14 @@ function renderBracket(model) {
     }
   }
 
-  for (const round of KNOCKOUT_ROUNDS) {
+  for (const [roundIndex, round] of KNOCKOUT_ROUNDS.entries()) {
     const matches =
       state.selectedTicketMatch === "all"
         ? round.matches
         : round.matches.filter((match) => match.match === state.selectedTicketMatch);
     if (!matches.length) continue;
 
-    const column = el("section", "bracket-round");
+    const column = el("section", `bracket-round bracket-round-${roundIndex + 1}`);
     column.appendChild(el("h3", "", round.name));
 
     const list = el("div", "bracket-round-list");
@@ -844,10 +844,10 @@ function renderBracketSide(slot, model, matchLookup) {
 function renderFutureSide(slot, model, matchLookup) {
   const row = el("div", "match-team future");
   row.appendChild(el("span", "slot-label", slot));
-  const body = el("span", "future-slot");
+  const body = el("div", "future-slot");
   const sourceMatch = matchLookup.get(`M${slot.slice(1)}`);
   body.appendChild(el("strong", "", `${slot[0] === "L" ? "Loser" : "Winner"} of ${sourceMatch?.match || slot.slice(1)}`));
-  body.appendChild(el("span", "", candidateSummary(collectSlotCandidates(slot, model, matchLookup))));
+  body.appendChild(renderCandidateList(collectSlotCandidates(slot, model, matchLookup)));
   row.appendChild(body);
   return row;
 }
@@ -883,12 +883,14 @@ function uniqueTeams(teams) {
   });
 }
 
-function candidateSummary(teams) {
-  if (!teams.length) return "Pending projected teams";
-  const names = teams.map((team) => team.name);
-  if (names.length <= 2) return names.join(" / ");
-  if (names.length <= 4) return names.join(", ");
-  return `${names.slice(0, 2).join(", ")} + ${names.length - 2} possible`;
+function renderCandidateList(teams) {
+  if (!teams.length) return el("div", "candidate-list pending", "Pending projected teams");
+
+  const list = el("div", "candidate-list");
+  for (const team of teams) {
+    list.appendChild(el("span", "candidate-chip", team.name));
+  }
+  return list;
 }
 
 function renderBracketTeam(slot, team) {
