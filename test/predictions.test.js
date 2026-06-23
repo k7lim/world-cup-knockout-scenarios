@@ -15,6 +15,7 @@ globalThis.__test = {
   ROUND_OF_32,
   KNOCKOUT_ROUNDS,
   getFixtureScore,
+  normalizeLocalSeed,
   computeTournament,
   safeNumber,
   updatePredictionFromInput
@@ -142,6 +143,59 @@ test("played-only group status ignores editable predictions", () => {
 
   assert.equal(current.find((team) => team.name === "Delta").points, 0);
   assert.equal(projected.find((team) => team.name === "Delta").points, 3);
+});
+
+test("static seed imports bundled odds predictions without replacing manual picks", () => {
+  const { state, getFixtureScore, normalizeLocalSeed } = loadApp();
+  const seed = {
+    updatedAtUtc: "2026-06-22T21:13:34.040Z",
+    source: { name: "test seed" },
+    groups: [
+      {
+        letter: "A",
+        teams: [
+          { id: 1, name: "Alpha", seedRank: 1 },
+          { id: 2, name: "Beta", seedRank: 2 },
+          { id: 3, name: "Gamma", seedRank: 3 },
+          { id: 4, name: "Delta", seedRank: 4 },
+        ],
+      },
+    ],
+    fixtures: [
+      {
+        id: 10,
+        group: "A",
+        date: "2026-06-12T00:00:00.000Z",
+        statusShort: "NS",
+        home: { id: 1, name: "Alpha" },
+        away: { id: 2, name: "Beta" },
+        goals: { home: null, away: null },
+      },
+      {
+        id: 11,
+        group: "A",
+        date: "2026-06-13T00:00:00.000Z",
+        statusShort: "NS",
+        home: { id: 3, name: "Gamma" },
+        away: { id: 4, name: "Delta" },
+        goals: { home: null, away: null },
+      },
+    ],
+    predictions: {
+      10: { home: 2, away: 1, source: "odds" },
+      11: { home: 0, away: 2, source: "odds" },
+    },
+    marketEvidence: {
+      10: { updatedAtUtc: "2026-06-22T21:00:00.000Z" },
+    },
+  };
+  state.predictions[11] = { home: 1, away: 1, source: "manual" };
+
+  normalizeLocalSeed(seed);
+
+  assert.deepEqual(plain(getFixtureScore(state.fixtures[0])), { home: 2, away: 1, source: "odds" });
+  assert.deepEqual(plain(getFixtureScore(state.fixtures[1])), { home: 1, away: 1, source: "manual" });
+  assert.deepEqual(plain(state.marketEvidence[10]), { updatedAtUtc: "2026-06-22T21:00:00.000Z" });
 });
 
 test("knockout bracket includes round-of-32 venues and later match paths", () => {

@@ -7,7 +7,10 @@
     "start": "node server.js",
     "test": "node --test",
     "extract:annexe-c": "node scripts/extract-annexe-c.js",
-    "build:seed": "node scripts/build-openfootball-seed.js"
+    "build:seed": "node scripts/build-openfootball-seed.js",
+    "export:static": "node scripts/export-static-site.js",
+    "deploy:pages": "bash scripts/deploy-github-pages.sh",
+    "sync:secrets": "bash scripts/sync-github-secrets.sh"
   },
   "engines": {
     "node": ">=20"

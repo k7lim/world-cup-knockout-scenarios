@@ -99,6 +99,38 @@ url:
 seed:
     npm run build:seed
 
+# Export the static GitHub Pages artifact into docs/.
+export-static:
+    npm run export:static
+
+# Sync GitHub Actions secrets/variables from the local environment or .env.
+sync-secrets:
+    npm run sync:secrets
+
+# Build, verify, commit, push, configure, and refresh GitHub Pages.
+deploy-pages:
+    npm run deploy:pages
+
+# Show the GitHub Pages source and recent refresh workflow runs.
+pages-status:
+    @repo="$(gh repo view --json nameWithOwner -q .nameWithOwner)"; \
+      if gh api "repos/$repo/pages" --jq '"site: \(.html_url // "not configured")\nsource: \(.source.branch // "unknown"):\(.source.path // "unknown")\nstatus: \(.status // "unknown")"' 2>/dev/null; then \
+        true; \
+      else \
+        printf 'GitHub Pages is not configured for %s\n' "$repo"; \
+      fi; \
+      printf '\nrecent refresh workflow runs:\n'; \
+      gh run list --repo "$repo" --workflow refresh-static-site.yml --limit 5 2>/dev/null || \
+        printf 'refresh workflow not found on the default branch yet\n'
+
+# Open the published GitHub Pages site, or print it when no opener is available.
+pages-open:
+    @repo="$(gh repo view --json nameWithOwner -q .nameWithOwner)"; \
+      owner="${repo%%/*}"; name="${repo#*/}"; url="https://${owner}.github.io/${name}/"; \
+      if command -v open >/dev/null 2>&1; then open "$url"; \
+      elif command -v xdg-open >/dev/null 2>&1; then xdg-open "$url"; \
+      else printf '%s\n' "$url"; fi
+
 # Alias for `seed`.
 refresh-source:
     @just seed

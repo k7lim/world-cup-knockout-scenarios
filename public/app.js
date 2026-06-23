@@ -355,6 +355,12 @@ function normalizeLocalSeed(seed) {
 
   populateGroupFilters();
   populateTicketFilter();
+  const imported = applyOddsImport(seed, "syncOdds", { persist: false });
+  state.sourceWarnings = evidenceWarningsFromResponse(seed);
+  if (imported.applied || imported.skipped) {
+    savePredictions();
+    saveMarketEvidence();
+  }
 }
 
 function populateGroupFilters() {
@@ -1121,7 +1127,7 @@ function evidenceWarningsFromResponse(payload) {
   return warnings;
 }
 
-function applyOddsImport(payload, mode) {
+function applyOddsImport(payload, mode, options = {}) {
   let applied = 0;
   let skipped = 0;
   for (const [fixtureId, prediction] of Object.entries(payload.predictions || {})) {
@@ -1155,8 +1161,10 @@ function applyOddsImport(payload, mode) {
     }
     applied += 1;
   }
-  savePredictions();
-  saveMarketEvidence();
+  if (options.persist !== false) {
+    savePredictions();
+    saveMarketEvidence();
+  }
   return { applied, skipped };
 }
 

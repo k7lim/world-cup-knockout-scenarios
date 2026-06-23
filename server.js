@@ -156,6 +156,11 @@ function isFixtureRefreshable(fixture) {
   return Boolean(kickoff && kickoff > Date.now());
 }
 
+function isFinalFixture(fixture) {
+  const terminal = new Set(["FT", "AET", "PEN", "AWD", "WO"]);
+  return terminal.has(fixture?.statusShort) && fixture.goals?.home !== null && fixture.goals?.away !== null;
+}
+
 function eventId(event) {
   return String(event?.id || event?.eventId || event?.event_id || event?.fixtureId || "");
 }
@@ -358,6 +363,23 @@ function oddsForEvent(oddsList, id) {
     const itemId = eventId(item) || String(item?.event_id || item?.eventId || "");
     return itemId === String(id);
   });
+}
+
+function predictionEvidenceUpdatedAt(cache, mapped) {
+  const timestamps = [];
+  if (mapped.providers?.theOddsApi?.eventId) {
+    timestamps.push(cache.providerResponses.theOddsApi?.odds?.fetchedAtUtc);
+  }
+  if (mapped.providers?.oddsApiIo?.eventId) {
+    timestamps.push(cache.providerResponses.oddsApiIo?.odds?.fetchedAtUtc);
+  }
+  return (
+    timestamps
+      .map((value) => Date.parse(value || ""))
+      .filter(Number.isFinite)
+      .sort((a, b) => b - a)
+      .map((value) => new Date(value).toISOString())[0] || null
+  );
 }
 
 function bookmakerEntries(payload) {
@@ -687,10 +709,19 @@ async function handleOddsPredictions(req, res) {
   const body = await readJsonBody(req);
   const fixtures = Array.isArray(body.fixtures) ? body.fixtures : [];
   const mode = ["reseedOdds", "syncOdds"].includes(body.mode) ? body.mode : "seedEmpty";
+  const payload = await buildOddsPredictionsPayload(fixtures, mode);
+  json(res, 200, payload);
+}
+
+async function buildOddsPredictionsPayload(fixtures, mode = "seedEmpty") {
   const cache = await readOddsCache();
   const nowMs = Date.now();
-  const eligibleFixtures = fixtures.filter(isFixtureRefreshable);
+  const eligibleFixtures = fixtures.filter((fixture) => {
+    if (isFinalFixture(fixture)) return false;
+    return isFixtureRefreshable(fixture) || Boolean(cache.fixtureProviders[String(fixture.id)]?.evidence);
+  });
   const fixturesToRefresh = eligibleFixtures.filter((fixture) => {
+    if (!isFixtureRefreshable(fixture)) return false;
     const evidence = cache.fixtureProviders[String(fixture.id)]?.evidence;
     const updatedAt = Date.parse(evidence?.updatedAtUtc || "");
     const interval = effectiveRefreshIntervalMs(fixture, mode, nowMs);
@@ -787,12 +818,17 @@ async function handleOddsPredictions(req, res) {
       oddsUnavailable.push(String(fixture.id));
       continue;
     }
+    const evidenceUpdatedAtUtc = predictionEvidenceUpdatedAt(cache, mapped) || new Date(nowMs).toISOString();
+    const staleAfterMs = interval
+      ? Math.round(interval * ODDS_STALE_MULTIPLIER)
+      : mapped.evidence?.staleAfterMs ?? null;
+    const stale = staleAfterMs ? nowMs - Date.parse(evidenceUpdatedAtUtc) > staleAfterMs : false;
     predictions[String(fixture.id)] = { ...prediction.score, source: "odds" };
     marketEvidence[String(fixture.id)] = {
       ...prediction.evidence,
-      updatedAtUtc: new Date().toISOString(),
-      staleAfterMs: interval ? Math.round(interval * ODDS_STALE_MULTIPLIER) : null,
-      stale: false,
+      updatedAtUtc: evidenceUpdatedAtUtc,
+      staleAfterMs,
+      stale,
       providers: mapped.providers || {},
     };
     mapped.evidence = marketEvidence[String(fixture.id)];
@@ -800,7 +836,7 @@ async function handleOddsPredictions(req, res) {
   }
 
   await writeOddsCache(cache);
-  json(res, 200, {
+  return {
     schemaVersion: 1,
     type: "wc2026-predictions",
     mode,
@@ -815,7 +851,7 @@ async function handleOddsPredictions(req, res) {
     marketEvidence,
     oddsUnavailable,
     providerStatus,
-  });
+  };
 }
 
 async function handleOpenfootballRefresh(res) {
@@ -895,6 +931,7 @@ if (require.main === module) {
 }
 
 module.exports = {
+  buildOddsPredictionsPayload,
   parseOneXTwoAndShape,
   predictionFromMarkets,
   scoreFromMarketShape,
