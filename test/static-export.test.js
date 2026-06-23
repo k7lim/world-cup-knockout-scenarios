@@ -18,4 +18,7 @@ test("static export rewrites browser paths for GitHub Pages project hosting", ()
   assert.doesNotMatch(staticApp, /"\/api\//);
   assert.doesNotMatch(staticIndex, /href="\//);
   assert.doesNotMatch(staticIndex, /src="\//);
+  assert.doesNotMatch(staticIndex, /id="refreshBtn"/);
+  assert.match(staticIndex, /id="resetPredictionsBtn"/);
+  assert.doesNotMatch(staticApp, /Refresh reloads the published snapshot/);
 });

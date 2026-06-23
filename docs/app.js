@@ -262,6 +262,7 @@ const els = {
   apiState: document.getElementById("apiState"),
   updatedAt: document.getElementById("updatedAt"),
   refreshBtn: document.getElementById("refreshBtn"),
+  resetPredictionsBtn: document.getElementById("resetPredictionsBtn"),
   clearPredictionsBtn: document.getElementById("clearPredictionsBtn"),
   oddsStatus: document.getElementById("oddsStatus"),
   oddsProgress: document.getElementById("oddsProgress"),
@@ -1291,8 +1292,7 @@ async function loadLocalData() {
     await ensureAnnexe();
     const seed = await fetchJson(LOCAL_SEED_URL);
     normalizeLocalSeed(seed);
-    const source = seed.source?.name ? ` from ${seed.source.name}` : "";
-    els.oddsStatus.textContent = `Static tournament file loaded${source}. Refresh reloads the published snapshot.`;
+    els.oddsStatus.textContent = "Tournament data loaded.";
     renderAll();
   } catch (error) {
     els.apiState.textContent = "Error";
@@ -1330,6 +1330,7 @@ async function bootFromSources() {
 function setBusy(busy) {
   [
     els.refreshBtn,
+    els.resetPredictionsBtn,
     els.clearPredictionsBtn,
     els.groupFilter,
     els.fixtureGroupFilter,
@@ -1431,7 +1432,17 @@ function clearPredictions() {
   state.marketEvidence = {};
   savePredictions();
   saveMarketEvidence();
-  els.oddsStatus.textContent = "Predictions cleared.";
+  els.oddsStatus.textContent = "Picks cleared.";
+  renderAll();
+}
+
+async function resetPredictionsFromData() {
+  state.predictions = {};
+  state.marketEvidence = {};
+  savePredictions();
+  saveMarketEvidence();
+  await bootFromSources();
+  els.oddsStatus.textContent = "Picks reset from data.";
   renderAll();
 }
 
@@ -1453,7 +1464,8 @@ function toggleAnnexeHelp(forceOpen) {
 }
 
 function bindEvents() {
-  els.refreshBtn.addEventListener("click", bootFromSources);
+  if (els.refreshBtn) els.refreshBtn.addEventListener("click", bootFromSources);
+  els.resetPredictionsBtn.addEventListener("click", resetPredictionsFromData);
   els.clearPredictionsBtn.addEventListener("click", clearPredictions);
   els.groupsTabBtn.addEventListener("click", () => setActiveTab("groups"));
   els.thirdTabBtn.addEventListener("click", () => setActiveTab("third"));

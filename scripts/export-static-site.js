@@ -34,17 +34,16 @@ async function copyPublicAssets() {
 }
 
 function staticIndexSource(source) {
-  return source.replace(/href="\/styles\.css([^"]*)"/, 'href="styles.css$1"').replace(/src="\/app\.js([^"]*)"/, 'src="app.js$1"');
+  return source
+    .replace(/href="\/styles\.css([^"]*)"/, 'href="styles.css$1"')
+    .replace(/src="\/app\.js([^"]*)"/, 'src="app.js$1"')
+    .replace(/\s*<button id="refreshBtn" class="secondary-btn compact" type="button">Refresh<\/button>/, "");
 }
 
 function staticAppSource(source) {
   return source
     .replace('const LOCAL_SEED_URL = "/data/world-cup-2026-seed.json";', 'const LOCAL_SEED_URL = "data/world-cup-2026-seed.json";')
     .replace('state.annexe = await fetchJson("/data/annexe-c.json");', 'state.annexe = await fetchJson("data/annexe-c.json");')
-    .replace(
-      "els.oddsStatus.textContent = `Local tournament file loaded${source}. Use Update From GitHub Source for newer played results.`;",
-      "els.oddsStatus.textContent = `Static tournament file loaded${source}. Refresh reloads the published snapshot.`;"
-    )
     .replace(
       /async function refreshSourceFromGitHub\(\) \{[\s\S]*?\n\}\n\nasync function refreshData/,
       `async function refreshSourceFromGitHub() {
