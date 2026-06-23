@@ -16,12 +16,13 @@ globalThis.__test = {
   KNOCKOUT_ROUNDS,
   getFixtureScore,
   normalizeLocalSeed,
-  computeTournament,
-  safeNumber,
-  teamShortName,
-  isCriticalWarning,
-  updatePredictionFromInput
-};
+    computeTournament,
+    safeNumber,
+    teamFlagEmoji,
+    teamShortName,
+    isCriticalWarning,
+    updatePredictionFromInput
+  };
 `;
 
   const elements = new Map();
@@ -287,6 +288,16 @@ test("future bracket candidate labels use compact country abbreviations", () => 
   assert.equal(teamShortName({ name: "Portugal" }), "POR");
   assert.equal(teamShortName({ name: "Bosnia & Herzegovina" }), "BIH");
   assert.equal(teamShortName({ name: "Curaçao" }), "CUW");
+});
+
+test("team flags are explicit for known countries and absent for placeholders", () => {
+  const { teamFlagEmoji } = loadApp();
+
+  assert.equal(teamFlagEmoji({ name: "Spain" }), "🇪🇸");
+  assert.equal(teamFlagEmoji({ name: "South Korea" }), "🇰🇷");
+  assert.equal(teamFlagEmoji({ name: "TBD" }), "");
+  assert.equal(teamFlagEmoji({ name: "Placeholder" }), "");
+  assert.equal(teamFlagEmoji({ name: "Not a country" }), "");
 });
 
 test("watch items treat odds fallback noise as non-critical", () => {

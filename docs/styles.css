@@ -541,6 +541,12 @@ tr:last-child td {
   gap: 8px;
 }
 
+.third-table .team-cell .team-flag {
+  font-size: 16px;
+  line-height: 1;
+  flex: 0 0 16px;
+}
+
 .team-cell img,
 .team-logo {
   width: 24px;

@@ -51,6 +51,56 @@ const TEAM_ABBREVIATIONS = new Map(
     Uzbekistan: "UZB",
   })
 );
+const TEAM_FLAG_EMOJIS = new Map(
+  Object.entries({
+    Algeria: "🇩🇿",
+    Argentina: "🇦🇷",
+    Australia: "🇦🇺",
+    Austria: "🇦🇹",
+    Belgium: "🇧🇪",
+    "Bosnia & Herzegovina": "🇧🇦",
+    Brazil: "🇧🇷",
+    Canada: "🇨🇦",
+    "Cape Verde": "🇨🇻",
+    Colombia: "🇨🇴",
+    Croatia: "🇭🇷",
+    Curacao: "🇨🇼",
+    "Czech Republic": "🇨🇿",
+    "DR Congo": "🇨🇩",
+    Ecuador: "🇪🇨",
+    Egypt: "🇪🇬",
+    France: "🇫🇷",
+    Germany: "🇩🇪",
+    Ghana: "🇬🇭",
+    Haiti: "🇭🇹",
+    Iran: "🇮🇷",
+    Iraq: "🇮🇶",
+    "Ivory Coast": "🇨🇮",
+    Japan: "🇯🇵",
+    Jordan: "🇯🇴",
+    Mexico: "🇲🇽",
+    Morocco: "🇲🇦",
+    Netherlands: "🇳🇱",
+    "New Zealand": "🇳🇿",
+    Norway: "🇳🇴",
+    Panama: "🇵🇦",
+    Paraguay: "🇵🇾",
+    Portugal: "🇵🇹",
+    Qatar: "🇶🇦",
+    "Saudi Arabia": "🇸🇦",
+    Senegal: "🇸🇳",
+    "South Africa": "🇿🇦",
+    "South Korea": "🇰🇷",
+    Spain: "🇪🇸",
+    Sweden: "🇸🇪",
+    Switzerland: "🇨🇭",
+    Tunisia: "🇹🇳",
+    Turkey: "🇹🇷",
+    Uruguay: "🇺🇾",
+    USA: "🇺🇸",
+    Uzbekistan: "🇺🇿",
+  }).map(([name, flag]) => [normalizedTeamName(name).toLowerCase(), flag])
+);
 const TERMINAL_STATUSES = new Set(["FT", "AET", "PEN", "AWD", "WO"]);
 const LIVE_STATUSES = new Set(["1H", "HT", "2H", "ET", "BT", "P", "LIVE"]);
 const STORAGE_KEY = "wc2026-predictions-v1";
@@ -382,6 +432,14 @@ function teamShortName(team) {
   return normalized.slice(0, 3).toUpperCase() || "TBD";
 }
 
+function teamFlagEmoji(team) {
+  const name = String(team?.name || "").trim();
+  if (!name || name === "TBD") return "";
+  const normalized = normalizedTeamName(name).toLowerCase();
+  if (/^(tbd|-|unknown|placeholder|qualifier|winner|loser)$/i.test(normalized)) return "";
+  return TEAM_FLAG_EMOJIS.get(normalized) || "";
+}
+
 function safeNumber(value) {
   if (value === "" || value === null || value === undefined) return null;
   const number = Number(value);
@@ -689,13 +747,18 @@ function oddsWarnings() {
   return warnings;
 }
 
-function renderTeamCell(team) {
+function renderTeamCell(team, options = {}) {
+  const { withFlag = false } = options;
   const wrap = el("div", "team-cell");
   if (team?.logo) {
     const img = el("img");
     img.src = team.logo;
     img.alt = "";
     wrap.appendChild(img);
+  }
+  if (withFlag) {
+    const flag = teamFlagEmoji(team);
+    if (flag) wrap.appendChild(el("span", "team-flag", flag));
   }
   wrap.appendChild(el("span", "team-name", team?.name || "TBD"));
   return wrap;
@@ -1138,7 +1201,7 @@ function renderThirdPlace(model) {
     const rank = el("td");
     rank.appendChild(el("span", "rank-pill", String(index + 1)));
     const teamTd = el("td", "team-col");
-    teamTd.appendChild(renderTeamCell(team));
+    teamTd.appendChild(renderTeamCell(team, { withFlag: true }));
     const groupTd = el("td");
     groupTd.appendChild(el("span", "group-pill", `Group ${team.group || "-"}`));
     const statusTd = el("td");
