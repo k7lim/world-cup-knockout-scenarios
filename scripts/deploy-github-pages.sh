@@ -114,8 +114,14 @@ trap 'rm -f "$payload"; if [ -n "${workflow_worktree:-}" ]; then git worktree re
 printf '{"source":{"branch":"%s","path":"%s"}}\n' "$pages_branch" "$pages_path" > "$payload"
 
 if gh api "repos/${repo}/pages" >/dev/null 2>&1; then
-  printf 'updating GitHub Pages source to %s:%s...\n' "$pages_branch" "$pages_path"
-  gh api --method PUT -H "Accept: application/vnd.github+json" "repos/${repo}/pages" --input "$payload" >/dev/null
+  current_pages_branch="$(gh api "repos/${repo}/pages" --jq '.source.branch // ""')"
+  current_pages_path="$(gh api "repos/${repo}/pages" --jq '.source.path // ""')"
+  if [ "$current_pages_branch:$current_pages_path" = "$pages_branch:$pages_path" ]; then
+    printf 'GitHub Pages source already set to %s:%s.\n' "$pages_branch" "$pages_path"
+  else
+    printf 'updating GitHub Pages source to %s:%s...\n' "$pages_branch" "$pages_path"
+    gh api --method PUT -H "Accept: application/vnd.github+json" "repos/${repo}/pages" --input "$payload" >/dev/null
+  fi
 else
   printf 'creating GitHub Pages source from %s:%s...\n' "$pages_branch" "$pages_path"
   gh api --method POST -H "Accept: application/vnd.github+json" "repos/${repo}/pages" --input "$payload" >/dev/null
