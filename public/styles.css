@@ -567,13 +567,13 @@ tr:last-child td {
   font-weight: 900;
 }
 
-.rank-1 .rank-pill,
-.rank-2 .rank-pill {
+.group-table .rank-1 .rank-pill,
+.group-table .rank-2 .rank-pill {
   background: #d9eee8;
   color: var(--green);
 }
 
-.rank-3 .rank-pill {
+.group-table .rank-3 .rank-pill {
   background: #fff0d1;
   color: var(--gold);
 }
