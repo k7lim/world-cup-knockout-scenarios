@@ -1,4 +1,56 @@
 const GROUPS = "ABCDEFGHIJKL".split("");
+const TEAM_ABBREVIATIONS = new Map(
+  Object.entries({
+    Algeria: "ALG",
+    Argentina: "ARG",
+    Australia: "AUS",
+    Austria: "AUT",
+    Belgium: "BEL",
+    "Bosnia & Herzegovina": "BIH",
+    Brazil: "BRA",
+    Canada: "CAN",
+    "Cape Verde": "CPV",
+    Colombia: "COL",
+    Croatia: "CRO",
+    Curacao: "CUW",
+    "Czech Republic": "CZE",
+    "DR Congo": "COD",
+    Ecuador: "ECU",
+    Egypt: "EGY",
+    England: "ENG",
+    France: "FRA",
+    Germany: "GER",
+    Ghana: "GHA",
+    Haiti: "HAI",
+    Iran: "IRN",
+    Iraq: "IRQ",
+    "Ivory Coast": "CIV",
+    Japan: "JPN",
+    Jordan: "JOR",
+    Mexico: "MEX",
+    Morocco: "MAR",
+    Netherlands: "NED",
+    "New Zealand": "NZL",
+    Norway: "NOR",
+    Panama: "PAN",
+    Paraguay: "PAR",
+    Portugal: "POR",
+    Qatar: "QAT",
+    "Saudi Arabia": "KSA",
+    Scotland: "SCO",
+    Senegal: "SEN",
+    "South Africa": "RSA",
+    "South Korea": "KOR",
+    Spain: "ESP",
+    Sweden: "SWE",
+    Switzerland: "SUI",
+    Tunisia: "TUN",
+    Turkey: "TUR",
+    Uruguay: "URU",
+    USA: "USA",
+    Uzbekistan: "UZB",
+  })
+);
 const TERMINAL_STATUSES = new Set(["FT", "AET", "PEN", "AWD", "WO"]);
 const LIVE_STATUSES = new Set(["1H", "HT", "2H", "ET", "BT", "P", "LIVE"]);
 const STORAGE_KEY = "wc2026-predictions-v1";
@@ -236,6 +288,7 @@ const els = {
   annexeOption: document.getElementById("annexeOption"),
   annexeBadge: document.getElementById("annexeBadge"),
   thirdPlaceList: document.getElementById("thirdPlaceList"),
+  warningsHeading: document.getElementById("warningsHeading"),
   warningsList: document.getElementById("warningsList"),
 };
 
@@ -308,6 +361,19 @@ function groupLetter(groupName) {
 
 function logoFor(team) {
   return team?.logo || state.teamMeta.get(team?.id)?.logo || "";
+}
+
+function normalizedTeamName(name) {
+  return String(name || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+function teamShortName(team) {
+  const normalized = normalizedTeamName(team?.name);
+  const mapped = TEAM_ABBREVIATIONS.get(normalized);
+  if (mapped) return mapped;
+  const words = normalized.match(/[A-Za-z]+/g) || [];
+  if (words.length >= 2) return words.map((word) => word[0]).join("").slice(0, 3).toUpperCase();
+  return normalized.slice(0, 3).toUpperCase() || "TBD";
 }
 
 function safeNumber(value) {
@@ -839,6 +905,21 @@ function renderBracket(model) {
   }
 }
 
+function renderRoundColumnsBracket(model, matchLookup) {
+  for (const [roundIndex, round] of KNOCKOUT_ROUNDS.entries()) {
+    const column = el("section", `bracket-round bracket-round-${roundIndex + 1}`);
+    column.appendChild(el("h3", "", round.name));
+
+    const list = el("div", "bracket-round-list");
+    for (const match of round.matches) {
+      list.appendChild(renderKnockoutMatch(match, model, matchLookup));
+    }
+
+    column.appendChild(list);
+    els.bracketGrid.appendChild(column);
+  }
+}
+
 function renderClassicBracket(model, matchLookup) {
   const regions = el("div", "bracket-regions");
   for (const region of CLASSIC_BRACKET_REGIONS) {
@@ -988,7 +1069,10 @@ function renderCandidateList(teams) {
 
   const list = el("div", "candidate-list");
   for (const team of teams) {
-    list.appendChild(el("span", "candidate-chip", team.name));
+    const chip = el("span", "candidate-chip", teamShortName(team));
+    chip.title = team.name;
+    chip.ariaLabel = team.name;
+    list.appendChild(chip);
   }
   return list;
 }
@@ -1018,13 +1102,24 @@ function renderWarnings(model) {
   if (!model.annexeRow && model.thirdQualifierGroups.length === 8) {
     warnings.push(`No Annexe C row found for ${model.thirdQualifierGroups}. Check extracted data.`);
   }
-  if (!warnings.length) {
-    els.warningsList.appendChild(el("div", "warning", "No unresolved tie-break warnings in the current projection."));
+  const criticalWarnings = warnings.filter(isCriticalWarning);
+  if (els.warningsHeading) els.warningsHeading.hidden = !criticalWarnings.length;
+  els.warningsList.hidden = !criticalWarnings.length;
+  if (!criticalWarnings.length) {
     return;
   }
-  for (const warning of warnings.slice(0, 6)) {
+  for (const warning of criticalWarnings.slice(0, 6)) {
     els.warningsList.appendChild(el("div", "warning", warning));
   }
+}
+
+function isCriticalWarning(warning) {
+  return (
+    /tied on points, goal difference, and goals scored near the qualification line/i.test(warning) ||
+    /tied on the eighth third-place cutoff/i.test(warning) ||
+    /No Annexe C row found/i.test(warning) ||
+    /^Odds missing for /i.test(warning)
+  );
 }
 
 function renderHeader(model) {

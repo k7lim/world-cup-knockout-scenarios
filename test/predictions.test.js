@@ -18,6 +18,8 @@ globalThis.__test = {
   normalizeLocalSeed,
   computeTournament,
   safeNumber,
+  teamShortName,
+  isCriticalWarning,
   updatePredictionFromInput
 };
 `;
@@ -277,4 +279,27 @@ test("knockout bracket includes round-of-32 venues and later match paths", () =>
     venue: "Philadelphia Stadium",
     city: "Philadelphia, USA",
   });
+});
+
+test("future bracket candidate labels use compact country abbreviations", () => {
+  const { teamShortName } = loadApp();
+
+  assert.equal(teamShortName({ name: "Portugal" }), "POR");
+  assert.equal(teamShortName({ name: "Bosnia & Herzegovina" }), "BIH");
+  assert.equal(teamShortName({ name: "Curaçao" }), "CUW");
+});
+
+test("watch items treat odds fallback noise as non-critical", () => {
+  const { isCriticalWarning } = loadApp();
+
+  assert.equal(
+    isCriticalWarning("Correct Score unavailable for Czech Republic vs Mexico; using 1x2_totals_spread market mode."),
+    false
+  );
+  assert.equal(isCriticalWarning("oddsApiIo: No Odds-API.io events matched eligible fixtures."), false);
+  assert.equal(isCriticalWarning("Odds missing for Czech Republic vs Mexico."), true);
+  assert.equal(
+    isCriticalWarning("Brazil and Japan are tied on the eighth third-place cutoff before conduct score/FIFA ranking."),
+    true
+  );
 });

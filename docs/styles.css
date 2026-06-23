@@ -620,17 +620,206 @@ tr:last-child td {
 }
 
 .bracket-grid {
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.bracket-grid.classic {
+  display: grid;
+  gap: 18px;
+  min-width: 900px;
+}
+
+.bracket-grid.rounds {
   display: grid;
   grid-template-columns:
     minmax(280px, 1.15fr) minmax(250px, 1fr) minmax(240px, 0.95fr)
     minmax(230px, 0.85fr) minmax(230px, 0.85fr);
   gap: 12px;
-  overflow-x: auto;
-  padding-bottom: 4px;
+  align-items: start;
 }
 
 .bracket-grid.single-match {
+  display: grid;
   grid-template-columns: minmax(min(100%, 420px), 560px);
+}
+
+.bracket-regions {
+  --bracket-column-gap: 34px;
+  --bracket-row-gap: 18px;
+  --bracket-row-height: 148px;
+  --connector-size: 2px;
+  display: grid;
+  gap: 16px;
+  min-width: 900px;
+}
+
+.bracket-region {
+  width: 100%;
+  min-width: 900px;
+}
+
+.finals-lane {
+  min-width: 900px;
+}
+
+.bracket-region h3,
+.finals-lane h3 {
+  margin: 0 0 10px;
+}
+
+.region-header {
+  display: grid;
+  grid-template-columns: minmax(245px, 1fr) minmax(255px, 1fr) minmax(275px, 1.08fr);
+  gap: var(--bracket-column-gap);
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.region-bracket {
+  display: grid;
+  grid-template-columns: minmax(245px, 1fr) minmax(255px, 1fr) minmax(275px, 1.08fr);
+  grid-template-rows: repeat(4, var(--bracket-row-height));
+  gap: var(--bracket-row-gap) var(--bracket-column-gap);
+}
+
+.region-slot {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  align-items: center;
+}
+
+.region-slot > .match-card {
+  z-index: 1;
+  width: 100%;
+}
+
+.region-slot-r32 {
+  align-items: stretch;
+}
+
+.region-slot-r32::after,
+.region-slot-r16::after,
+.region-slot-r16::before,
+.region-slot-qf::before {
+  position: absolute;
+  content: "";
+  pointer-events: none;
+}
+
+.region-slot-r32::after,
+.region-slot-r16::after {
+  left: 100%;
+}
+
+.region-slot-r32::after,
+.region-slot-r16::after {
+  top: 50%;
+  width: var(--bracket-column-gap);
+  border-top: var(--connector-size) solid var(--line-strong);
+}
+
+.region-slot-r16::before,
+.region-slot-qf::before {
+  right: 100%;
+  top: 25%;
+  width: var(--bracket-column-gap);
+  height: 50%;
+  background:
+    linear-gradient(var(--line-strong), var(--line-strong)) left center / var(--connector-size) 100% no-repeat,
+    linear-gradient(var(--line-strong), var(--line-strong)) left center / 100% var(--connector-size) no-repeat;
+}
+
+.finals-lane {
+  --finals-column-gap: 34px;
+  --finals-row-gap: 22px;
+  --connector-size: 2px;
+  min-width: 900px;
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+}
+
+.finals-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(300px, 1.08fr) minmax(280px, 1fr);
+  grid-template-rows: auto auto auto;
+  gap: var(--finals-row-gap) var(--finals-column-gap);
+}
+
+.finals-heading {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.finals-slot {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  align-items: center;
+}
+
+.finals-slot > .match-card {
+  z-index: 1;
+  width: 100%;
+}
+
+.finals-slot-semi {
+  align-items: center;
+}
+
+.finals-slot .candidate-list {
+  gap: 5px;
+}
+
+.finals-slot .candidate-chip {
+  padding-block: 3px;
+}
+
+.finals-slot-semi::after,
+.finals-slot-final::before {
+  position: absolute;
+  content: "";
+  pointer-events: none;
+}
+
+.finals-slot-semi::after {
+  left: 100%;
+  top: 50%;
+  width: var(--finals-column-gap);
+  border-top: var(--connector-size) solid var(--line-strong);
+}
+
+.finals-slot-final::before {
+  right: 100%;
+  top: 25%;
+  width: var(--finals-column-gap);
+  height: 50%;
+  background:
+    linear-gradient(var(--line-strong), var(--line-strong)) left center / var(--connector-size) 100% no-repeat,
+    linear-gradient(var(--line-strong), var(--line-strong)) left center / 100% var(--connector-size) no-repeat;
+}
+
+.finals-stage {
+  display: grid;
+  gap: 10px;
+}
+
+.finals-stage h4 {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .bracket-round {
@@ -642,11 +831,13 @@ tr:last-child td {
 }
 
 .bracket-round-list {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 10px;
 }
 
 .match-card {
+  position: relative;
   padding: 12px;
 }
 
@@ -699,20 +890,40 @@ tr:last-child td {
 .future-slot {
   display: grid;
   min-width: 0;
-  gap: 2px;
+  gap: 6px;
   font-size: 12px;
   line-height: 1.25;
 }
 
-.future-slot strong,
-.future-slot span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.future-slot strong {
+  overflow-wrap: anywhere;
 }
 
-.future-slot span {
+.candidate-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.candidate-list.pending {
   color: var(--muted);
+}
+
+.candidate-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  max-width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 2px 7px;
+  background: #f8f9f6;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1.2;
+  white-space: nowrap;
 }
 
 .metric-row {
@@ -855,7 +1066,6 @@ code {
   .status-strip,
   .workspace,
   .fixture-card,
-  .bracket-grid,
   .section-tools,
   .metric-row.compact {
     grid-template-columns: 1fr;
@@ -873,6 +1083,42 @@ code {
 
   .bracket-grid {
     overflow-x: visible;
+  }
+
+  .bracket-grid.rounds {
+    min-width: 0;
+    grid-template-columns: 1fr;
+  }
+
+  .bracket-regions,
+  .bracket-grid.classic,
+  .bracket-region,
+  .finals-lane {
+    min-width: 0;
+  }
+
+  .region-header {
+    display: none;
+  }
+
+  .region-bracket,
+  .finals-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .region-slot,
+  .finals-heading,
+  .finals-slot {
+    grid-column: auto !important;
+    grid-row: auto !important;
+  }
+
+  .region-slot::before,
+  .region-slot::after,
+  .finals-slot::before,
+  .finals-slot::after {
+    display: none;
   }
 
   .section-tools {
