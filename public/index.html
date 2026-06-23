@@ -14,9 +14,12 @@
           <h1>Knockout Outlook</h1>
         </div>
         <div class="status-strip">
-          <div>
+          <div class="data-status">
             <span class="label">Data</span>
-            <strong id="apiState">Not loaded</strong>
+            <div class="status-value-row">
+              <strong id="apiState">Not loaded</strong>
+              <button id="refreshBtn" class="secondary-btn compact" type="button">Refresh</button>
+            </div>
           </div>
           <div>
             <span class="label">Updated</span>
@@ -35,7 +38,7 @@
             <button id="predictionHelpBtn" class="icon-btn" type="button" aria-label="How Predictions Are Made" aria-expanded="false" aria-controls="predictionHelp">?</button>
             <div id="predictionHelp" class="popover" hidden>
               <h3>How Predictions Are Made</h3>
-              <p>Odds-based picks use available match-winner, totals, spreads, and correct-score markets. Manual score edits override odds picks until reset.</p>
+              <p>Odds-based picks use available match-winner, totals, spreads, and correct-score markets. Manual score edits override odds picks until cleared.</p>
             </div>
           </div>
 
@@ -43,7 +46,8 @@
             <select id="fixtureGroupFilter" aria-label="Filter fixtures by group">
               <option value="all">All groups</option>
             </select>
-            <button id="clearPredictionsBtn" class="secondary-btn danger" type="button">Reset Picks</button>
+            <button id="resetPredictionsBtn" class="secondary-btn" type="button">Reset From Data</button>
+            <button id="clearPredictionsBtn" class="secondary-btn danger" type="button">Clear Picks</button>
           </div>
           <div id="fixturesList" class="fixtures-list"></div>
           <button id="fixturesToggleBtn" class="secondary-btn fixtures-toggle" type="button" aria-controls="fixturesList" aria-expanded="false" hidden>
@@ -54,9 +58,6 @@
         <section class="main-column">
           <section class="tool-strip" aria-label="Prediction tools">
             <p id="oddsStatus">Loading local tournament file...</p>
-            <div class="tool-actions">
-              <button id="refreshBtn" class="secondary-btn" type="button">Refresh</button>
-            </div>
             <div id="oddsProgress" class="progress" hidden>
               <div id="oddsProgressBar"></div>
             </div>

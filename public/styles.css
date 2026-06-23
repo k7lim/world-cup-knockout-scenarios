@@ -121,6 +121,21 @@ h3 {
   white-space: nowrap;
 }
 
+.data-status {
+  min-width: 240px;
+}
+
+.status-value-row {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-value-row strong {
+  min-width: 0;
+}
+
 .status-strip a {
   color: var(--blue);
   text-decoration: underline;
@@ -352,6 +367,13 @@ h3 {
 
 .secondary-btn.danger {
   color: var(--red);
+}
+
+.secondary-btn.compact {
+  min-height: 30px;
+  flex: 0 0 auto;
+  padding: 5px 8px;
+  font-size: 12px;
 }
 
 .progress {
