@@ -34,7 +34,7 @@ async function copyPublicAssets() {
 }
 
 function staticIndexSource(source) {
-  return source.replace('href="/styles.css"', 'href="styles.css"').replace('src="/app.js"', 'src="app.js"');
+  return source.replace(/href="\/styles\.css([^"]*)"/, 'href="styles.css$1"').replace(/src="\/app\.js([^"]*)"/, 'src="app.js$1"');
 }
 
 function staticAppSource(source) {

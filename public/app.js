@@ -179,6 +179,33 @@ const KNOCKOUT_ROUNDS = [
   },
 ];
 
+const CLASSIC_BRACKET_REGIONS = [
+  {
+    name: "Region 1",
+    roundOf32: ["M74", "M77", "M73", "M75"],
+    roundOf16: ["M89", "M90"],
+    quarterfinal: "M97",
+  },
+  {
+    name: "Region 2",
+    roundOf32: ["M83", "M84", "M81", "M82"],
+    roundOf16: ["M93", "M94"],
+    quarterfinal: "M98",
+  },
+  {
+    name: "Region 3",
+    roundOf32: ["M76", "M78", "M79", "M80"],
+    roundOf16: ["M91", "M92"],
+    quarterfinal: "M99",
+  },
+  {
+    name: "Region 4",
+    roundOf32: ["M86", "M88", "M85", "M87"],
+    roundOf16: ["M95", "M96"],
+    quarterfinal: "M100",
+  },
+];
+
 const els = {
   apiState: document.getElementById("apiState"),
   updatedAt: document.getElementById("updatedAt"),
@@ -781,7 +808,7 @@ function resolveSlot(slot, model) {
 function renderBracket(model) {
   els.bracketGrid.innerHTML = "";
   els.bracketGrid.className =
-    state.selectedTicketMatch === "all" ? "bracket-grid" : "bracket-grid single-match";
+    state.selectedTicketMatch === "all" ? "bracket-grid classic" : "bracket-grid single-match";
   const matchLookup = new Map();
 
   for (const round of KNOCKOUT_ROUNDS) {
@@ -790,11 +817,13 @@ function renderBracket(model) {
     }
   }
 
+  if (state.selectedTicketMatch === "all") {
+    renderClassicBracket(model, matchLookup);
+    return;
+  }
+
   for (const [roundIndex, round] of KNOCKOUT_ROUNDS.entries()) {
-    const matches =
-      state.selectedTicketMatch === "all"
-        ? round.matches
-        : round.matches.filter((match) => match.match === state.selectedTicketMatch);
+    const matches = round.matches.filter((match) => match.match === state.selectedTicketMatch);
     if (!matches.length) continue;
 
     const column = el("section", `bracket-round bracket-round-${roundIndex + 1}`);
@@ -808,6 +837,77 @@ function renderBracket(model) {
     column.appendChild(list);
     els.bracketGrid.appendChild(column);
   }
+}
+
+function renderClassicBracket(model, matchLookup) {
+  const regions = el("div", "bracket-regions");
+  for (const region of CLASSIC_BRACKET_REGIONS) {
+    regions.appendChild(renderBracketRegion(region, model, matchLookup));
+  }
+  els.bracketGrid.appendChild(regions);
+
+  const finals = el("section", "finals-lane");
+  finals.appendChild(el("h3", "", "Final Four"));
+
+  const finalsGrid = el("div", "finals-grid");
+  finalsGrid.appendChild(renderFinalsHeading("Semifinals", 1));
+  finalsGrid.appendChild(renderFinalsHeading("Championship", 2));
+  finalsGrid.appendChild(renderFinalsHeading("Third Place", 3));
+  finalsGrid.appendChild(renderFinalsMatch(matchLookup.get("M101"), model, matchLookup, "finals-slot-semi", 1, 2));
+  finalsGrid.appendChild(renderFinalsMatch(matchLookup.get("M102"), model, matchLookup, "finals-slot-semi", 1, 3));
+  finalsGrid.appendChild(renderFinalsMatch(matchLookup.get("M104"), model, matchLookup, "finals-slot-final", 2, 2, 2));
+  finalsGrid.appendChild(renderFinalsMatch(matchLookup.get("M103"), model, matchLookup, "finals-slot-third", 3, 2, 2));
+  finals.appendChild(finalsGrid);
+  els.bracketGrid.appendChild(finals);
+}
+
+function renderFinalsHeading(text, column) {
+  const heading = el("h4", "finals-heading", text);
+  heading.style.gridColumn = String(column);
+  return heading;
+}
+
+function renderFinalsMatch(match, model, matchLookup, className, column, row, span = 1) {
+  const slot = el("div", `finals-slot ${className}`);
+  slot.style.gridColumn = String(column);
+  slot.style.gridRow = `${row} / span ${span}`;
+
+  const card = renderKnockoutMatch(match, model, matchLookup);
+  slot.appendChild(card);
+  return slot;
+}
+
+function renderBracketRegion(region, model, matchLookup) {
+  const section = el("section", "bracket-region");
+  section.appendChild(el("h3", "", region.name));
+
+  const header = el("div", "region-header");
+  header.appendChild(el("span", "", "Round of 32"));
+  header.appendChild(el("span", "", "Round of 16"));
+  header.appendChild(el("span", "", "Quarterfinal"));
+  section.appendChild(header);
+
+  const grid = el("div", "region-bracket");
+  region.roundOf32.forEach((matchId, index) => {
+    grid.appendChild(renderRegionMatch(matchLookup.get(matchId), model, matchLookup, "region-slot-r32", 1, index + 1));
+  });
+  region.roundOf16.forEach((matchId, index) => {
+    grid.appendChild(renderRegionMatch(matchLookup.get(matchId), model, matchLookup, "region-slot-r16", 2, index * 2 + 1, 2));
+  });
+  grid.appendChild(renderRegionMatch(matchLookup.get(region.quarterfinal), model, matchLookup, "region-slot-qf", 3, 1, 4));
+
+  section.appendChild(grid);
+  return section;
+}
+
+function renderRegionMatch(match, model, matchLookup, className, column, row, span = 1) {
+  const slot = el("div", `region-slot ${className}`);
+  slot.style.gridColumn = String(column);
+  slot.style.gridRow = `${row} / span ${span}`;
+
+  const card = renderKnockoutMatch(match, model, matchLookup);
+  slot.appendChild(card);
+  return slot;
 }
 
 function resolvedAwaySlot(match, model) {
