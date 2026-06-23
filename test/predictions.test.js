@@ -198,6 +198,46 @@ test("static seed imports bundled odds predictions without replacing manual pick
   assert.deepEqual(plain(state.marketEvidence[10]), { updatedAtUtc: "2026-06-22T21:00:00.000Z" });
 });
 
+test("static seed replaces stale blank manual predictions with bundled odds", () => {
+  const { state, getFixtureScore, normalizeLocalSeed } = loadApp();
+  const seed = {
+    updatedAtUtc: "2026-06-22T21:13:34.040Z",
+    source: { name: "test seed" },
+    groups: [
+      {
+        letter: "A",
+        teams: [
+          { id: 1, name: "Alpha", seedRank: 1 },
+          { id: 2, name: "Beta", seedRank: 2 },
+        ],
+      },
+    ],
+    fixtures: [
+      {
+        id: 10,
+        group: "A",
+        date: "2026-06-12T00:00:00.000Z",
+        statusShort: "NS",
+        home: { id: 1, name: "Alpha" },
+        away: { id: 2, name: "Beta" },
+        goals: { home: null, away: null },
+      },
+    ],
+    predictions: {
+      10: { home: 2, away: 1, source: "odds" },
+    },
+    marketEvidence: {
+      10: { updatedAtUtc: "2026-06-22T21:00:00.000Z" },
+    },
+  };
+  state.predictions[10] = { home: "", away: "", source: "manual" };
+
+  normalizeLocalSeed(seed);
+
+  assert.deepEqual(plain(getFixtureScore(state.fixtures[0])), { home: 2, away: 1, source: "odds" });
+  assert.deepEqual(plain(state.marketEvidence[10]), { updatedAtUtc: "2026-06-22T21:00:00.000Z" });
+});
+
 test("knockout bracket includes round-of-32 venues and later match paths", () => {
   const { ROUND_OF_32, KNOCKOUT_ROUNDS } = loadApp();
 

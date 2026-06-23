@@ -289,6 +289,10 @@ function safeNumber(value) {
   return Number.isFinite(number) ? number : null;
 }
 
+function hasUsablePrediction(prediction) {
+  return safeNumber(prediction?.home) !== null || safeNumber(prediction?.away) !== null;
+}
+
 function isLockedFixture(fixture) {
   return TERMINAL_STATUSES.has(fixture.statusShort) && fixture.goals.home !== null && fixture.goals.away !== null;
 }
@@ -1121,7 +1125,7 @@ function applyOddsImport(payload, mode, options = {}) {
       continue;
     }
     const existing = state.predictions[fixtureId];
-    if (existing?.source === "manual") {
+    if (existing?.source === "manual" && hasUsablePrediction(existing)) {
       skipped += 1;
       continue;
     }
