@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "name": "World Cup 2026 Local Tournament File",
-  "updatedAtUtc": "2026-06-23T18:57:36.831Z",
+  "updatedAtUtc": "2026-06-23T19:55:45.818Z",
   "source": {
     "name": "openfootball/worldcup.json",
     "url": "https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json",
@@ -1992,8 +1992,8 @@
         "name": "Houston",
         "city": "Houston"
       },
-      "statusShort": "NS",
-      "statusLong": "Not Started",
+      "statusShort": "FT",
+      "statusLong": "Match Finished",
       "home": {
         "id": 260041,
         "name": "Portugal",
@@ -2005,8 +2005,8 @@
         "logo": ""
       },
       "goals": {
-        "home": null,
-        "away": null
+        "home": 5,
+        "away": 0
       }
     },
     {
@@ -2245,7 +2245,7 @@
     }
   ],
   "staticExport": {
-    "exportedAtUtc": "2026-06-23T18:57:37.226Z",
+    "exportedAtUtc": "2026-06-23T19:55:46.184Z",
     "note": "GitHub Pages snapshot. Rebuilt by scheduled workflow; odds evidence includes per-fixture stale metadata."
   },
   "predictions": {
@@ -2347,11 +2347,6 @@
     "2026060": {
       "home": 0,
       "away": 2,
-      "source": "odds"
-    },
-    "2026063": {
-      "home": 3,
-      "away": 0,
       "source": "odds"
     },
     "2026064": {
@@ -2931,33 +2926,6 @@
         }
       }
     },
-    "2026063": {
-      "marketUsed": "1x2_totals_spread",
-      "confidence": "medium",
-      "probability": 0.838,
-      "probabilities": {
-        "home": 0.838,
-        "draw": 0.113,
-        "away": 0.048
-      },
-      "expectedGoals": {
-        "home": 2.75,
-        "away": 0.5
-      },
-      "totalGoalsLine": 3.24,
-      "goalDifferenceLine": 2.26,
-      "bookmakerCount": 48,
-      "fallbackUsed": true,
-      "topCorrectScores": null,
-      "updatedAtUtc": "2026-06-23T17:04:04.013Z",
-      "staleAfterMs": 32400000,
-      "stale": false,
-      "providers": {
-        "theOddsApi": {
-          "eventId": "8ba93d190f1f934e33862a97a6353a6e"
-        }
-      }
-    },
     "2026064": {
       "marketUsed": "1x2_totals_spread",
       "confidence": "medium",
@@ -3174,5 +3142,5 @@
       "Odds-API.io"
     ]
   },
-  "predictionsExportedAtUtc": "2026-06-23T18:57:37.226Z"
+  "predictionsExportedAtUtc": "2026-06-23T19:55:46.184Z"
 }
