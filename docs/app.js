@@ -832,9 +832,8 @@ function renderFixtures() {
 function predictionSummary(fixture, score) {
   if (score.home === null || score.away === null) return "Prediction pending";
   const scoreline = `${fixture.home.name} ${score.home}-${score.away} ${fixture.away.name}`;
-  if (score.home > score.away) return `Favored: ${fixture.home.name} | ${scoreline}`;
-  if (score.away > score.home) return `Favored: ${fixture.away.name} | ${scoreline}`;
-  return `Favored: Draw | ${scoreline}`;
+  if (score.home === score.away) return `Draw | ${scoreline}`;
+  return scoreline;
 }
 
 function teamLogo(team) {
