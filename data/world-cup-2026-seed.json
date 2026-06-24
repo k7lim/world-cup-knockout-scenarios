@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "name": "World Cup 2026 Local Tournament File",
-  "updatedAtUtc": "2026-06-24T20:52:32.555Z",
+  "updatedAtUtc": "2026-06-24T21:47:03.632Z",
   "source": {
     "name": "openfootball/worldcup.json",
     "url": "https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json",
@@ -640,8 +640,8 @@
         "name": "Vancouver",
         "city": "Vancouver"
       },
-      "statusShort": "NS",
-      "statusLong": "Not Started",
+      "statusShort": "FT",
+      "statusLong": "Match Finished",
       "home": {
         "id": 260008,
         "name": "Switzerland",
@@ -653,8 +653,8 @@
         "logo": ""
       },
       "goals": {
-        "home": null,
-        "away": null
+        "home": 2,
+        "away": 1
       }
     },
     {
@@ -666,8 +666,8 @@
         "name": "Seattle",
         "city": "Seattle"
       },
-      "statusShort": "NS",
-      "statusLong": "Not Started",
+      "statusShort": "FT",
+      "statusLong": "Match Finished",
       "home": {
         "id": 260006,
         "name": "Bosnia & Herzegovina",
@@ -679,8 +679,8 @@
         "logo": ""
       },
       "goals": {
-        "home": null,
-        "away": null
+        "home": 3,
+        "away": 1
       }
     },
     {
