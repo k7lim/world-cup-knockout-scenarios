@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>World Cup 2026 Knockout Outlook</title>
-    <link rel="stylesheet" href="styles.css?v=20260623-left-predictions" />
+    <link rel="stylesheet" href="styles.css?v=20260624-sticky-mode-toggle" />
   </head>
   <body>
     <div class="app-shell">
@@ -62,6 +62,15 @@
             </div>
           </section>
 
+          <section class="mode-strip" aria-label="Prediction mode">
+            <label class="switch-control" for="predictionModeToggle">
+              <span class="switch-label switch-label-off">Completed Matches Only</span>
+              <input id="predictionModeToggle" type="checkbox" checked />
+              <span class="switch-track" aria-hidden="true"></span>
+              <span class="switch-label switch-label-on">Show With Predictions</span>
+            </label>
+          </section>
+
           <section class="view-shell" aria-label="Tournament views">
             <div class="view-toolbar">
               <div class="tabs" role="tablist" aria-label="Tournament views">
@@ -75,13 +84,6 @@
                   Bracket
                 </button>
               </div>
-
-              <label class="switch-control" for="predictionModeToggle">
-                <span class="switch-label switch-label-off">Completed Matches Only</span>
-                <input id="predictionModeToggle" type="checkbox" checked />
-                <span class="switch-track" aria-hidden="true"></span>
-                <span class="switch-label switch-label-on">Show With Predictions</span>
-              </label>
             </div>
 
             <section id="groupsTab" class="tab-panel" role="tabpanel" aria-labelledby="groupsTabBtn">

@@ -244,11 +244,25 @@ h3 {
 .view-toolbar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 12px;
   margin-bottom: 16px;
   border-bottom: 1px solid var(--line);
   padding-bottom: 12px;
+}
+
+.mode-strip {
+  position: sticky;
+  z-index: 3;
+  top: 18px;
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: var(--shadow);
+  padding: 10px 12px;
 }
 
 .tabs {
@@ -1195,7 +1209,8 @@ code {
   .topbar,
   .section-head,
   .tool-strip,
-  .view-toolbar {
+  .view-toolbar,
+  .mode-strip {
     align-items: stretch;
     flex-direction: column;
   }
@@ -1216,6 +1231,10 @@ code {
 
   .switch-control {
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  }
+
+  .mode-strip {
+    top: 12px;
   }
 
   .bracket-grid {
