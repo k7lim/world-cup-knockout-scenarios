@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "name": "World Cup 2026 Local Tournament File",
-  "updatedAtUtc": "2026-06-24T03:25:16.539Z",
+  "updatedAtUtc": "2026-06-24T05:39:33.125Z",
   "source": {
     "name": "openfootball/worldcup.json",
     "url": "https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json",
@@ -2018,8 +2018,8 @@
         "name": "Guadalajara (Zapopan)",
         "city": "Guadalajara"
       },
-      "statusShort": "NS",
-      "statusLong": "Not Started",
+      "statusShort": "FT",
+      "statusLong": "Match Finished",
       "home": {
         "id": 260044,
         "name": "Colombia",
@@ -2031,8 +2031,8 @@
         "logo": ""
       },
       "goals": {
-        "home": null,
-        "away": null
+        "home": 1,
+        "away": 0
       }
     },
     {
