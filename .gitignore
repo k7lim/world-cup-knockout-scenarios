@@ -3,6 +3,8 @@ node_modules/
 .DS_Store
 .just/
 data/odds-refresh-cache.json
+.ralph/
+.yolobox.toml
 
 # Beads / Dolt files (added by bd init)
 .dolt/
