@@ -21,7 +21,11 @@ jobs:
         with:
           node-version: 20
 
+      - id: refresh-window
+        run: node scripts/should-refresh-static-site.js --github-output
+
       - uses: actions/cache@v4
+        if: github.event_name != 'schedule' || steps.refresh-window.outputs.active == 'true'
         with:
           path: data/odds-refresh-cache.json
           key: odds-refresh-cache-${{ github.ref_name }}-${{ github.run_id }}
@@ -29,14 +33,17 @@ jobs:
             odds-refresh-cache-${{ github.ref_name }}-
 
       - run: npm test
+        if: github.event_name != 'schedule' || steps.refresh-window.outputs.active == 'true'
 
       - run: npm run export:static
+        if: github.event_name != 'schedule' || steps.refresh-window.outputs.active == 'true'
         env:
           THE_ODDS_API_KEY: ${{ secrets.THE_ODDS_API_KEY }}
           ODDS_API_IO_KEY: ${{ secrets.ODDS_API_IO_KEY }}
           ODDS_API_IO_BASE: ${{ vars.ODDS_API_IO_BASE }}
 
       - name: Commit refreshed snapshot
+        if: github.event_name != 'schedule' || steps.refresh-window.outputs.active == 'true'
         run: |
           if git diff --quiet -- docs data; then
             echo "No data changes to commit."
