@@ -1353,6 +1353,7 @@ async function postJson(url, body) {
 }
 
 function setOddsStatus(message) {
+  if (!els.oddsStatus) return;
   els.oddsStatus.textContent = message;
   els.oddsStatus.hidden = !message;
 }
@@ -1530,8 +1531,8 @@ async function seedFromOdds(mode = "seedEmpty", options = {}) {
   }
 
   if (!auto) setBusy(true);
-  els.oddsProgress.hidden = false;
-  els.oddsProgressBar.style.width = "0%";
+  if (els.oddsProgress) els.oddsProgress.hidden = false;
+  if (els.oddsProgressBar) els.oddsProgressBar.style.width = "0%";
   if (mode === "syncOdds") {
     setOddsStatus(`Checking cached odds for ${fixtures.length} unplayed fixture${fixtures.length === 1 ? "" : "s"}...`);
   } else {
@@ -1547,7 +1548,7 @@ async function seedFromOdds(mode = "seedEmpty", options = {}) {
       mode,
       fixtures: fixtures.map(fixturePayload),
     });
-    els.oddsProgressBar.style.width = "100%";
+    if (els.oddsProgressBar) els.oddsProgressBar.style.width = "100%";
     const { applied, skipped } = applyOddsImport(payload, mode);
     const responseWarnings = evidenceWarningsFromResponse(payload);
     state.sourceWarnings = responseWarnings;
@@ -1566,7 +1567,7 @@ async function seedFromOdds(mode = "seedEmpty", options = {}) {
     setOddsStatus(`Could not refresh odds predictions: ${error.message}`);
   } finally {
     if (!auto) setBusy(false);
-    els.oddsProgress.hidden = true;
+    if (els.oddsProgress) els.oddsProgress.hidden = true;
     renderAll();
   }
 }

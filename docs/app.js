@@ -1353,6 +1353,7 @@ async function postJson(url, body) {
 }
 
 function setOddsStatus(message) {
+  if (!els.oddsStatus) return;
   els.oddsStatus.textContent = message;
   els.oddsStatus.hidden = !message;
 }
