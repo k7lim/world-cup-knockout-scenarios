@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "name": "World Cup 2026 Local Tournament File",
-  "updatedAtUtc": "2026-06-23T23:37:32.407Z",
+  "updatedAtUtc": "2026-06-24T01:14:07.818Z",
   "source": {
     "name": "openfootball/worldcup.json",
     "url": "https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json",
@@ -2174,8 +2174,8 @@
         "name": "Toronto",
         "city": "Toronto"
       },
-      "statusShort": "NS",
-      "statusLong": "Not Started",
+      "statusShort": "FT",
+      "statusLong": "Match Finished",
       "home": {
         "id": 260048,
         "name": "Panama",
@@ -2187,8 +2187,8 @@
         "logo": ""
       },
       "goals": {
-        "home": null,
-        "away": null
+        "home": 0,
+        "away": 1
       }
     },
     {
@@ -2245,7 +2245,7 @@
     }
   ],
   "staticExport": {
-    "exportedAtUtc": "2026-06-23T23:37:33.275Z",
+    "exportedAtUtc": "2026-06-24T01:14:08.136Z",
     "note": "GitHub Pages snapshot. Rebuilt by scheduled workflow; odds evidence includes per-fixture stale metadata."
   },
   "predictions": {
@@ -2361,11 +2361,6 @@
     },
     "2026066": {
       "home": 2,
-      "away": 1,
-      "source": "odds"
-    },
-    "2026070": {
-      "home": 0,
       "away": 1,
       "source": "odds"
     },
@@ -3002,33 +2997,6 @@
         }
       }
     },
-    "2026070": {
-      "marketUsed": "1x2_totals_spread",
-      "confidence": "medium",
-      "probability": 0.561,
-      "probabilities": {
-        "home": 0.151,
-        "draw": 0.288,
-        "away": 0.561
-      },
-      "expectedGoals": {
-        "home": 0.5,
-        "away": 1.25
-      },
-      "totalGoalsLine": 1.74,
-      "goalDifferenceLine": -0.66,
-      "bookmakerCount": 36,
-      "fallbackUsed": true,
-      "topCorrectScores": null,
-      "updatedAtUtc": "2026-06-23T23:37:32.418Z",
-      "staleAfterMs": 32400000,
-      "stale": false,
-      "providers": {
-        "theOddsApi": {
-          "eventId": "c1bc8c26480cd42b89a0de5329581314"
-        }
-      }
-    },
     "2026071": {
       "marketUsed": "1x2_totals_spread",
       "confidence": "medium",
@@ -3091,8 +3059,9 @@
       "error": null
     },
     "oddsApiIo": {
-      "ok": false,
-      "error": "No Odds-API.io events matched eligible fixtures."
+      "ok": true,
+      "error": null,
+      "skipped": "fresh cache"
     }
   },
   "predictionSource": {
@@ -3109,5 +3078,5 @@
       "Odds-API.io"
     ]
   },
-  "predictionsExportedAtUtc": "2026-06-23T23:37:33.275Z"
+  "predictionsExportedAtUtc": "2026-06-24T01:14:08.136Z"
 }
