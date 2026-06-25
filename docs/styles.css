@@ -744,6 +744,35 @@ tr:last-child td {
   padding: 18px;
 }
 
+.path-status-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.path-status {
+  min-height: 26px;
+}
+
+.path-status.clinched,
+.path-status.qualified,
+.path-status.current {
+  background: #d9eee8;
+  color: var(--green);
+}
+
+.path-status.bubble {
+  background: #fff0d1;
+  color: var(--gold);
+}
+
+.path-status.out,
+.path-status.eliminated {
+  background: #f3dfdd;
+  color: var(--red);
+}
+
 .path-kicker {
   margin: 0 0 8px;
   color: var(--green);
@@ -796,6 +825,58 @@ tr:last-child td {
   color: var(--ink);
   font-size: 13px;
   line-height: 1.4;
+}
+
+.opponent-card {
+  display: grid;
+  gap: 8px;
+}
+
+.opponent-card.current {
+  border-color: var(--line-strong);
+  background: #f7fbfa;
+}
+
+.opponent-card-top {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.opponent-card-top strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.opponent-card-top span {
+  flex: 0 0 auto;
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.opponent-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.scenario-bar {
+  overflow: hidden;
+  height: 7px;
+  border-radius: 999px;
+  background: #dce3df;
+}
+
+.scenario-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--green);
 }
 
 .match-watch {

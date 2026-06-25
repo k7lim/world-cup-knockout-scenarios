@@ -1130,16 +1130,235 @@ function computeTeamPath(teamIdOrName, model) {
   };
 }
 
+function computeTeamPathScenarios(teamIdOrName, model = computeTournament()) {
+  const path = computeTeamPath(teamIdOrName, model);
+  if (!path) return null;
+  const eliminationReasons = pathEliminationReasons(path, model);
+  const status = pathStatus(path, eliminationReasons);
+  const opponentDistribution =
+    status.kind === "eliminated" ? [] : opponentDistributionForPath(path, model);
+  return {
+    path,
+    status,
+    opponentDistribution,
+    finishDistribution: [
+      {
+        slot: path.slot,
+        rank: path.rank,
+        label: path.slot || `${ordinal(path.rank)} in Group ${path.group}`,
+        currentProjection: true,
+      },
+    ],
+    eliminationReasons,
+    changeDrivers: pathChangeDrivers(path, model, status, opponentDistribution, eliminationReasons),
+  };
+}
+
+function pathStatus(path, eliminationReasons) {
+  if (eliminationReasons.length) {
+    return { kind: "eliminated", label: "Eliminated" };
+  }
+  if (path.winnerClinched) {
+    return { kind: "clinched", label: `Clinched ${path.slot}` };
+  }
+  if (path.qualified && path.rank <= 2 && groupRemainingFixtures(path.group).length === 0) {
+    return { kind: "qualified", label: `Qualified as ${path.slot}` };
+  }
+  if (path.qualified && path.rank === 3) {
+    return { kind: "bubble", label: `Currently in as ${path.slot}` };
+  }
+  if (path.qualified) {
+    return { kind: "current", label: `Currently in as ${path.slot}` };
+  }
+  if (path.rank === 3) {
+    return { kind: "bubble", label: "On the bubble" };
+  }
+  return { kind: "out", label: "Currently out" };
+}
+
+function pathEliminationReasons(path, model) {
+  const reasons = [];
+  if (path.qualified) return reasons;
+  const remaining = groupRemainingFixtures(path.group);
+  const allRemaining = state.fixtures.filter((fixture) => !isLockedFixture(fixture));
+  if (remaining.length === 0 && (path.rank >= 4 || allRemaining.length === 0)) {
+    reasons.push(
+      `${path.team.name} completed Group ${path.group} in ${ordinal(path.rank)} and is outside the qualifying places.`
+    );
+    return reasons;
+  }
+
+  const currentModel = computeTournament({ includePredictions: false });
+  const current = findTeamRow(path.team.id, currentModel);
+  const currentRows = currentModel.rankedGroups.get(path.group) || [];
+  const currentThird = currentRows[2];
+  if (!current || !currentThird) return reasons;
+  const teamRemaining = remaining.filter(
+    (fixture) => fixture.home.id === path.team.id || fixture.away.id === path.team.id
+  ).length;
+  const maxPoints = current.team.points + teamRemaining * 3;
+  if (current.rank === 4 && maxPoints < currentThird.points) {
+    reasons.push(
+      `${path.team.name} can reach at most ${maxPoints} points, which cannot catch Group ${path.group}'s current third-place total.`
+    );
+  }
+  return reasons;
+}
+
+function groupRemainingFixtures(group) {
+  return state.fixtures.filter((fixture) => fixture.group === group && !isLockedFixture(fixture));
+}
+
+function opponentDistributionForPath(path, model) {
+  if (!path.qualified || !path.match || !path.opponentSlot) return [];
+
+  if (path.match.awaySlot && path.match.home === path.slot) {
+    return annexeOpponentDistribution(path.match.awaySlot, path.opponentSlot, model);
+  }
+
+  const opponent = resolveSlot(path.opponentSlot, model);
+  return [
+    {
+      slot: path.opponentSlot,
+      slotLabel: slotDescription(path.opponentSlot),
+      team: opponent,
+      teamName: opponent?.name || slotDescription(path.opponentSlot),
+      count: 1,
+      total: 1,
+      share: 1,
+      basis: "Current projected slot",
+      currentProjection: true,
+    },
+  ];
+}
+
+function annexeOpponentDistribution(awaySlotKey, currentOpponentSlot, model) {
+  const counts = new Map();
+  for (const row of state.annexe) {
+    const slot = row.slots?.[awaySlotKey];
+    if (!slot) continue;
+    counts.set(slot, (counts.get(slot) || 0) + 1);
+  }
+  const total = Array.from(counts.values()).reduce((sum, count) => sum + count, 0);
+  if (!total && currentOpponentSlot) {
+    const opponent = resolveSlot(currentOpponentSlot, model);
+    return [
+      {
+        slot: currentOpponentSlot,
+        slotLabel: slotDescription(currentOpponentSlot),
+        team: opponent,
+        teamName: opponent?.name || slotDescription(currentOpponentSlot),
+        count: 1,
+        total: 1,
+        share: 1,
+        basis: "Current Annexe C row",
+        currentProjection: true,
+      },
+    ];
+  }
+
+  return Array.from(counts.entries())
+    .map(([slot, count]) => {
+      const opponent = resolveSlot(slot, model);
+      return {
+        slot,
+        slotLabel: slotDescription(slot),
+        team: opponent,
+        teamName: opponent?.name || slotDescription(slot),
+        count,
+        total,
+        share: count / total,
+        basis: `Annexe C scenario share for ${awaySlotKey}`,
+        currentProjection: slot === currentOpponentSlot,
+      };
+    })
+    .sort((a, b) => b.count - a.count || a.slot.localeCompare(b.slot));
+}
+
+function pathChangeDrivers(path, model, status, opponentDistribution, eliminationReasons) {
+  if (status.kind === "eliminated") return eliminationReasons;
+  const drivers = [];
+
+  if (path.winnerClinched) {
+    drivers.push(
+      `${path.team.name}'s own slot is fixed at ${path.slot}; Group ${path.group} score changes no longer move its Round of 32 slot.`
+    );
+  } else if (path.slot) {
+    drivers.push(
+      `${path.team.name}'s own Group ${path.group} finish can still move it away from ${path.slot}.`
+    );
+  } else {
+    drivers.push(
+      `${path.team.name} needs Group ${path.group} results to move into a top-two place or a qualifying third-place place.`
+    );
+  }
+
+  if (path.opponentSlot?.startsWith("3")) {
+    const group = path.opponentSlot[1];
+    const complete = groupRemainingFixtures(group).length === 0;
+    const opponentName = path.opponent?.name || slotDescription(path.opponentSlot);
+    drivers.push(
+      complete
+        ? `${opponentName} is fixed as Group ${group}'s third-place team because Group ${group} is complete.`
+        : `Group ${group}'s remaining matches can put a different team into the ${path.opponentSlot} slot.`
+    );
+    drivers.push(`The third-place cutoff can still remove Group ${group} from the eight qualifying third-place groups.`);
+
+    const exceptions = annexeDestinationsForThirdGroup(group).slots[path.slot]?.exceptions || [];
+    if (exceptions.length) {
+      const firstException = exceptions[0];
+      const exceptionRow = state.annexe.find((row) => row.qualifiers === firstException);
+      const replacementSlot = exceptionRow?.slots?.[path.slot];
+      drivers.push(
+        `Annexe C exception ${firstException} sends Group ${group}'s third-place team away from ${path.slot}; ${path.slot} gets ${slotDescription(replacementSlot)} instead.`
+      );
+    }
+
+    const alternatives = opponentDistribution
+      .filter((entry) => !entry.currentProjection)
+      .slice(0, 3)
+      .map((entry) => `${entry.slotLabel} (${formatShare(entry.share)})`);
+    if (alternatives.length) {
+      drivers.push(`${path.slot}'s other Annexe C sources are ${alternatives.join(", ")}.`);
+    }
+  } else if (path.opponent) {
+    const complete = groupRemainingFixtures(path.opponent.group).length === 0;
+    drivers.push(
+      complete
+        ? `${path.opponent.name}'s ${path.opponentSlot} slot is fixed because Group ${path.opponent.group} is complete.`
+        : `Group ${path.opponent.group}'s remaining matches can move ${path.opponent.name} out of ${path.opponentSlot}.`
+    );
+  }
+
+  return Array.from(new Set(drivers));
+}
+
+function slotDescription(slot) {
+  if (!slot) return "another third-place group";
+  if (slot.startsWith("1")) return `Group ${slot[1]} winner`;
+  if (slot.startsWith("2")) return `Group ${slot[1]} runner-up`;
+  if (slot.startsWith("3")) return `Group ${slot[1]} third-place team`;
+  return slot;
+}
+
+function formatShare(value) {
+  return `${Math.round(value * 1000) / 10}%`;
+}
+
 function renderPath(model) {
   els.pathBrowser.innerHTML = "";
   const selected = state.selectedPathTeam || "USA";
-  const path = computeTeamPath(selected, model) || computeTeamPath("USA", model);
-  if (!path) {
+  const scenario = computeTeamPathScenarios(selected, model) || computeTeamPathScenarios("USA", model);
+  if (!scenario) {
     els.pathBrowser.appendChild(emptyState("No team path is available yet."));
     return;
   }
+  const path = scenario.path;
 
   const hero = el("article", "path-hero");
+  const statusRow = el("div", "path-status-row");
+  statusRow.appendChild(el("span", `status-pill path-status ${scenario.status.kind}`, scenario.status.label));
+  hero.appendChild(statusRow);
   const eyebrow = path.winnerClinched
     ? `${path.team.name} has clinched Group ${path.group}.`
     : `${path.team.name} currently projects as ${ordinal(path.rank)} in Group ${path.group}.`;
@@ -1159,8 +1378,9 @@ function renderPath(model) {
   els.pathBrowser.appendChild(hero);
 
   const grid = el("div", "path-grid");
+  grid.appendChild(renderOpponentDistribution(scenario.opponentDistribution));
   grid.appendChild(renderPathSection("Why this is the path", pathFacts(path, model)));
-  grid.appendChild(renderPathSection("What could change this", pathChangeCards(path, model)));
+  grid.appendChild(renderPathSection("What can change this", scenario.changeDrivers));
   grid.appendChild(renderImportantMatches(path, model));
   els.pathBrowser.appendChild(grid);
 }
@@ -1199,29 +1419,40 @@ function pathFacts(path, model) {
   return facts;
 }
 
-function pathChangeCards(path, model) {
-  const cards = [];
-  const opponentGroup = path.opponentSlot?.startsWith("3") ? path.opponentSlot[1] : path.opponent?.group;
-  if (path.opponent?.name === "Bosnia & Herzegovina" && opponentGroup === "B") {
-    cards.push("Bosnia finishes second in Group B, which sends them to the 2B slot instead.");
-    cards.push("Bosnia loses the Group B third-place race and finishes fourth.");
-    cards.push("Bosnia finishes third but misses the eight-team third-place cutoff.");
-    const annexe = annexeDestinationsForThirdGroup("B");
-    const exceptionCount = annexe.slots["1D"]?.exceptions?.length || 0;
-    if (exceptionCount) {
-      cards.push(`A rare Annexe C combination redirects Group B's third-place team away from USA. That is ${exceptionCount} of ${annexe.total} combinations.`);
+function renderOpponentDistribution(distribution) {
+  const section = el("section", "path-panel opponent-panel");
+  section.appendChild(el("h3", "", "Opponent possibilities"));
+  const list = el("div", "path-card-list");
+  if (!distribution.length) {
+    list.appendChild(el("div", "path-card", "No knockout opponent is available for this team in the current path."));
+    section.appendChild(list);
+    return section;
+  }
+  for (const entry of distribution) {
+    const card = el("div", `path-card opponent-card${entry.currentProjection ? " current" : ""}`);
+    const top = el("div", "opponent-card-top");
+    top.appendChild(el("strong", "", entry.teamName));
+    top.appendChild(el("span", "", formatShare(entry.share)));
+    card.appendChild(top);
+    const bar = el("div", "scenario-bar");
+    const fill = el("span");
+    fill.style.width = `${Math.max(2, Math.round(entry.share * 100))}%`;
+    bar.appendChild(fill);
+    card.appendChild(bar);
+    card.appendChild(
+      el(
+        "p",
+        "",
+        `${entry.slotLabel}; ${entry.count} of ${entry.total} ${entry.total === 1 ? "case" : "Annexe C scenarios"}.`
+      )
+    );
+    if (entry.currentProjection) {
+      card.appendChild(el("span", "source-pill locked", "Current projection"));
     }
-    return cards;
+    list.appendChild(card);
   }
-  if (opponentGroup) {
-    cards.push(`The Group ${opponentGroup} standings can move the current opponent into a different finishing place.`);
-  }
-  if (path.opponentSlot?.startsWith("3")) {
-    cards.push("The third-place cutoff can remove that group from the knockout field.");
-    cards.push("Annexe C can redirect the qualifying third-place groups depending on which eight groups survive.");
-  }
-  if (!cards.length) cards.push("The path changes if either team moves to a different group finishing place.");
-  return cards;
+  section.appendChild(list);
+  return section;
 }
 
 function renderPathSection(title, items) {

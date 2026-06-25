@@ -17,6 +17,7 @@ globalThis.__test = {
   getFixtureScore,
   normalizeLocalSeed,
     computeTournament,
+    computeTeamPathScenarios,
     annexeDestinationsForThirdGroup,
     safeNumber,
     teamFlagEmoji,
@@ -176,6 +177,51 @@ test("Annexe C almost always sends qualifying Group B third place to 1D", () => 
   assert.equal(destinations.total, 330);
   assert.deepEqual(plain(destinations.slots["1D"]), { count: 329, exceptions: ["BEGHIJKL"] });
   assert.deepEqual(plain(destinations.slots["1E"]), { count: 1, exceptions: [] });
+});
+
+test("team path scenarios mark a completed fourth-place team as eliminated", () => {
+  const { state, computeTournament, computeTeamPathScenarios } = loadApp();
+  const teams = [
+    { id: 1, name: "Alpha", group: "A", officialRank: 1 },
+    { id: 2, name: "Beta", group: "A", officialRank: 2 },
+    { id: 3, name: "Gamma", group: "A", officialRank: 3 },
+    { id: 4, name: "Delta", group: "A", officialRank: 4 },
+  ];
+  state.standingsGroups.set("A", teams);
+  state.fixtures = [
+    { id: 10, group: "A", statusShort: "FT", goals: { home: 1, away: 0 }, home: teams[0], away: teams[1] },
+    { id: 11, group: "A", statusShort: "FT", goals: { home: 2, away: 0 }, home: teams[0], away: teams[2] },
+    { id: 12, group: "A", statusShort: "FT", goals: { home: 2, away: 0 }, home: teams[0], away: teams[3] },
+    { id: 13, group: "A", statusShort: "FT", goals: { home: 1, away: 0 }, home: teams[1], away: teams[2] },
+    { id: 14, group: "A", statusShort: "FT", goals: { home: 1, away: 0 }, home: teams[1], away: teams[3] },
+    { id: 15, group: "A", statusShort: "FT", goals: { home: 1, away: 0 }, home: teams[2], away: teams[3] },
+  ];
+
+  const scenario = computeTeamPathScenarios("Delta", computeTournament());
+
+  assert.equal(scenario.status.kind, "eliminated");
+  assert.equal(scenario.status.label, "Eliminated");
+  assert.deepEqual(plain(scenario.opponentDistribution), []);
+  assert.match(scenario.eliminationReasons.join(" "), /completed Group A in 4th/);
+});
+
+test("USA path scenarios show alternative Annexe opponents and concrete change drivers", () => {
+  const { state, computeTournament, computeTeamPathScenarios, normalizeLocalSeed } = loadApp();
+  const seed = require("../data/world-cup-2026-seed.json");
+  normalizeLocalSeed(seed);
+  state.annexe = require("../data/annexe-c.json");
+
+  const scenario = computeTeamPathScenarios("USA", computeTournament());
+  const bosnia = scenario.opponentDistribution.find((entry) => entry.teamName === "Bosnia & Herzegovina");
+
+  assert.equal(scenario.status.kind, "clinched");
+  assert.equal(scenario.status.label, "Clinched 1D");
+  assert.ok(scenario.opponentDistribution.length > 1);
+  assert.equal(bosnia.count, 329);
+  assert.equal(bosnia.total, 495);
+  assert.equal(bosnia.currentProjection, true);
+  assert.match(scenario.changeDrivers.join(" "), /BEGHIJKL/);
+  assert.match(scenario.changeDrivers.join(" "), /Group I/);
 });
 
 test("static seed imports bundled odds predictions without replacing manual picks", () => {
