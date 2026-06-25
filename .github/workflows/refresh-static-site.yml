@@ -3,7 +3,9 @@ name: Refresh static site data
 on:
   workflow_dispatch:
   schedule:
-    - cron: "17 * * * *"
+    # Tournament updates began 2026-06-11 09:00 HST (2026-06-11 19:00 UTC).
+    # Scheduled runs are cheap SHA checks unless upstream data changed or a match refresh window is active.
+    - cron: "*/15 * * * *"
 
 permissions:
   contents: write
@@ -11,32 +13,72 @@ permissions:
 jobs:
   refresh:
     runs-on: ubuntu-latest
+    concurrency:
+      group: refresh-static-site-${{ github.repository }}
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: gh-pages
           fetch-depth: 0
+
+      - id: target
+        name: Select data branch
+        env:
+          CONFIGURED_BRANCH: ${{ vars.STATIC_SITE_TARGET_BRANCH }}
+        run: |
+          git fetch --prune origin '+refs/heads/*:refs/remotes/origin/*'
+          if [ -n "$CONFIGURED_BRANCH" ]; then
+            target_branch="$CONFIGURED_BRANCH"
+          elif git show-ref --verify --quiet refs/remotes/origin/gh-pages; then
+            target_branch="gh-pages"
+          else
+            target_branch="${GITHUB_REF_NAME}"
+          fi
+
+          if ! git show-ref --verify --quiet "refs/remotes/origin/${target_branch}"; then
+            echo "Target branch does not exist on origin: ${target_branch}" >&2
+            exit 1
+          fi
+
+          git switch -C "$target_branch" "origin/$target_branch"
+          echo "branch=$target_branch" >> "$GITHUB_OUTPUT"
+          echo "Updating static data on $target_branch"
 
       - uses: actions/setup-node@v4
         with:
           node-version: 20
 
+      - id: refresh-decision
+        run: node scripts/should-refresh-static-site.js --github-output
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
       - uses: actions/cache@v4
+        if: github.event_name != 'schedule' || steps.refresh-decision.outputs.active == 'true'
         with:
           path: data/odds-refresh-cache.json
-          key: odds-refresh-cache-${{ github.ref_name }}-${{ github.run_id }}
+          key: odds-refresh-cache-${{ steps.target.outputs.branch }}-${{ github.run_id }}
           restore-keys: |
-            odds-refresh-cache-${{ github.ref_name }}-
+            odds-refresh-cache-${{ steps.target.outputs.branch }}-
 
       - run: npm test
+        if: github.event_name != 'schedule' || steps.refresh-decision.outputs.active == 'true'
 
       - run: npm run export:static
+        if: github.event_name != 'schedule' || steps.refresh-decision.outputs.active == 'true'
         env:
+          GITHUB_TOKEN: ${{ github.token }}
           THE_ODDS_API_KEY: ${{ secrets.THE_ODDS_API_KEY }}
           ODDS_API_IO_KEY: ${{ secrets.ODDS_API_IO_KEY }}
           ODDS_API_IO_BASE: ${{ vars.ODDS_API_IO_BASE }}
 
       - name: Commit refreshed snapshot
+        if: github.event_name != 'schedule' || steps.refresh-decision.outputs.active == 'true'
+        env:
+          TARGET_BRANCH: ${{ steps.target.outputs.branch }}
+          UPSTREAM_CHANGED: ${{ steps.refresh-decision.outputs.upstream_changed }}
+          UPSTREAM_COMMIT: ${{ steps.refresh-decision.outputs.upstream_commit }}
+          REFRESH_REASON: ${{ steps.refresh-decision.outputs.reason }}
         run: |
           if git diff --quiet -- docs data; then
             echo "No data changes to commit."
@@ -45,5 +87,9 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs data
-          git commit -m "Refresh World Cup static data"
-          git push origin HEAD:gh-pages
+          if [ "$UPSTREAM_CHANGED" = "true" ] && [ -n "$UPSTREAM_COMMIT" ]; then
+            git commit -m "Refresh World Cup static data" -m "openfootball/worldcup.json ${UPSTREAM_COMMIT}"
+          else
+            git commit -m "Refresh World Cup static data" -m "$REFRESH_REASON"
+          fi
+          git push origin "HEAD:${TARGET_BRANCH}"
