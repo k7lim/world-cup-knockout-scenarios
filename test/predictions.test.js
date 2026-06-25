@@ -224,6 +224,84 @@ test("USA path scenarios show alternative Annexe opponents and concrete change d
   assert.match(scenario.changeDrivers.join(" "), /Group I/);
 });
 
+test("Annexe opponent scenarios exclude completed third-place groups that are mathematically out", () => {
+  const { state, computeTournament, computeTeamPathScenarios } = loadApp();
+  const teamsByGroup = new Map();
+  const fixtures = [];
+  let fixtureId = 1000;
+  for (const group of "ABCDEFGHIJKL") {
+    const names =
+      group === "D"
+        ? ["USA", "Australia", "Paraguay", "Turkey"]
+        : [`${group} One`, `${group} Two`, `${group} Three`, `${group} Four`];
+    const teams = names.map((name, index) => ({
+      id: group.charCodeAt(0) * 10 + index,
+      name,
+      group,
+      officialRank: index + 1,
+    }));
+    teamsByGroup.set(group, teams);
+    state.standingsGroups.set(group, teams);
+  }
+
+  function addFixture(group, homeIndex, awayIndex, home, away, statusShort = "FT") {
+    const teams = teamsByGroup.get(group);
+    fixtures.push({
+      id: fixtureId++,
+      group,
+      statusShort,
+      goals: statusShort === "FT" ? { home, away } : { home: null, away: null },
+      home: teams[homeIndex],
+      away: teams[awayIndex],
+    });
+  }
+
+  function completeNormalGroup(group) {
+    addFixture(group, 0, 1, 2, 0);
+    addFixture(group, 0, 2, 2, 0);
+    addFixture(group, 0, 3, 2, 0);
+    addFixture(group, 1, 2, 1, 0);
+    addFixture(group, 1, 3, 1, 0);
+    addFixture(group, 2, 3, 1, 0);
+  }
+
+  function completeLowThirdGroup(group) {
+    addFixture(group, 0, 1, 2, 0);
+    addFixture(group, 0, 2, 2, 0);
+    addFixture(group, 0, 3, 2, 0);
+    addFixture(group, 1, 2, 1, 0);
+    addFixture(group, 1, 3, 1, 0);
+    addFixture(group, 2, 3, 0, 0);
+  }
+
+  function addOpenGroup(group) {
+    addFixture(group, 0, 1, null, null, "NS");
+    addFixture(group, 0, 2, null, null, "NS");
+    addFixture(group, 1, 2, null, null, "NS");
+  }
+
+  for (const group of "ABCDEFGH") completeNormalGroup(group);
+  completeLowThirdGroup("I");
+  for (const group of "JKL") addOpenGroup(group);
+  state.fixtures = fixtures;
+  state.annexe = require("../data/annexe-c.json");
+
+  const scenario = computeTeamPathScenarios("USA", computeTournament());
+
+  assert.equal(scenario.annexeConstraints.excluded.includes("I"), true);
+  assert.equal(scenario.opponentDistribution.some((entry) => entry.slot === "3I"), false);
+  assert.equal(scenario.opponentDistribution[0].total, 165);
+  assert.deepEqual(
+    plain(scenario.opponentDistribution.map((entry) => [entry.slot, entry.count])),
+    [
+      ["3B", 120],
+      ["3J", 27],
+      ["3E", 13],
+      ["3F", 5],
+    ]
+  );
+});
+
 test("static seed imports bundled odds predictions without replacing manual picks", () => {
   const { state, getFixtureScore, normalizeLocalSeed } = loadApp();
   const seed = {

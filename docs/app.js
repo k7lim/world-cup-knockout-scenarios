@@ -1135,11 +1135,13 @@ function computeTeamPathScenarios(teamIdOrName, model = computeTournament()) {
   if (!path) return null;
   const eliminationReasons = pathEliminationReasons(path, model);
   const status = pathStatus(path, eliminationReasons);
+  const annexeConstraints = annexeThirdPlaceConstraints();
   const opponentDistribution =
-    status.kind === "eliminated" ? [] : opponentDistributionForPath(path, model);
+    status.kind === "eliminated" ? [] : opponentDistributionForPath(path, model, annexeConstraints);
   return {
     path,
     status,
+    annexeConstraints,
     opponentDistribution,
     finishDistribution: [
       {
@@ -1150,7 +1152,7 @@ function computeTeamPathScenarios(teamIdOrName, model = computeTournament()) {
       },
     ],
     eliminationReasons,
-    changeDrivers: pathChangeDrivers(path, model, status, opponentDistribution, eliminationReasons),
+    changeDrivers: pathChangeDrivers(path, model, status, opponentDistribution, eliminationReasons, annexeConstraints),
   };
 }
 
@@ -1209,11 +1211,11 @@ function groupRemainingFixtures(group) {
   return state.fixtures.filter((fixture) => fixture.group === group && !isLockedFixture(fixture));
 }
 
-function opponentDistributionForPath(path, model) {
+function opponentDistributionForPath(path, model, annexeConstraints = annexeThirdPlaceConstraints()) {
   if (!path.qualified || !path.match || !path.opponentSlot) return [];
 
   if (path.match.awaySlot && path.match.home === path.slot) {
-    return annexeOpponentDistribution(path.match.awaySlot, path.opponentSlot, model);
+    return annexeOpponentDistribution(path.match.awaySlot, path.opponentSlot, model, annexeConstraints);
   }
 
   const opponent = resolveSlot(path.opponentSlot, model);
@@ -1232,9 +1234,10 @@ function opponentDistributionForPath(path, model) {
   ];
 }
 
-function annexeOpponentDistribution(awaySlotKey, currentOpponentSlot, model) {
+function annexeOpponentDistribution(awaySlotKey, currentOpponentSlot, model, constraints = annexeThirdPlaceConstraints()) {
+  const rows = constrainedAnnexeRows(constraints);
   const counts = new Map();
-  for (const row of state.annexe) {
+  for (const row of rows) {
     const slot = row.slots?.[awaySlotKey];
     if (!slot) continue;
     counts.set(slot, (counts.get(slot) || 0) + 1);
@@ -1268,14 +1271,124 @@ function annexeOpponentDistribution(awaySlotKey, currentOpponentSlot, model) {
         count,
         total,
         share: count / total,
-        basis: `Annexe C scenario share for ${awaySlotKey}`,
+        basis: constraints.required.length || constraints.excluded.length
+          ? `Constrained Annexe C scenario share for ${awaySlotKey}`
+          : `Annexe C scenario share for ${awaySlotKey}`,
+        constrained: Boolean(constraints.required.length || constraints.excluded.length),
         currentProjection: slot === currentOpponentSlot,
       };
     })
     .sort((a, b) => b.count - a.count || a.slot.localeCompare(b.slot));
 }
 
-function pathChangeDrivers(path, model, status, opponentDistribution, eliminationReasons) {
+function annexeThirdPlaceConstraints() {
+  const currentModel = computeTournament({ includePredictions: false });
+  const completed = GROUPS
+    .map((group) => ({
+      group,
+      rows: currentModel.rankedGroups.get(group) || [],
+      remaining: groupRemainingFixtures(group),
+    }))
+    .filter((entry) => entry.rows[2]);
+  const required = [];
+  const excluded = [];
+
+  for (const entry of completed.filter((candidate) => candidate.remaining.length === 0)) {
+    const third = entry.rows[2];
+    let guaranteedBetter = 0;
+    let guaranteedWorse = 0;
+
+    for (const other of completed) {
+      if (other.group === entry.group) continue;
+      const otherThird = other.rows[2];
+      if (other.remaining.length === 0) {
+        const comparison = compareKnownThirdPlaceRows(otherThird, third);
+        if (comparison < 0) guaranteedBetter += 1;
+        if (comparison > 0) guaranteedWorse += 1;
+      } else {
+        if (otherThird.points > third.points) guaranteedBetter += 1;
+        if (maxThirdPlacePoints(other.group, currentModel) < third.points) guaranteedWorse += 1;
+      }
+    }
+
+    if (guaranteedBetter >= 8) {
+      excluded.push(entry.group);
+    } else if (guaranteedWorse >= 4) {
+      required.push(entry.group);
+    }
+  }
+
+  return {
+    required: required.sort(),
+    excluded: excluded.sort(),
+  };
+}
+
+function compareKnownThirdPlaceRows(left, right) {
+  return (
+    right.points - left.points ||
+    right.gd - left.gd ||
+    right.gf - left.gf ||
+    0
+  );
+}
+
+function constrainedAnnexeRows(constraints) {
+  const required = new Set(constraints?.required || []);
+  const excluded = new Set(constraints?.excluded || []);
+  if (!required.size && !excluded.size) return state.annexe;
+  return state.annexe.filter((row) => {
+    const qualifiers = String(row.qualifiers || "");
+    for (const group of required) {
+      if (!qualifiers.includes(group)) return false;
+    }
+    for (const group of excluded) {
+      if (qualifiers.includes(group)) return false;
+    }
+    return true;
+  });
+}
+
+function maxThirdPlacePoints(group, currentModel) {
+  const rows = (currentModel.rankedGroups.get(group) || []).map((row) => ({
+    id: row.id,
+    points: row.points,
+    officialRank: row.officialRank,
+  }));
+  if (rows.length < 3) return 0;
+  const remaining = groupRemainingFixtures(group);
+  let best = rows.slice().sort(pointRankRows)[2]?.points || 0;
+
+  function walk(index, table) {
+    if (index >= remaining.length) {
+      const ranked = table.slice().sort(pointRankRows);
+      best = Math.max(best, ranked[2]?.points || 0);
+      return;
+    }
+    const fixture = remaining[index];
+    for (const [homePoints, awayPoints] of [
+      [3, 0],
+      [1, 1],
+      [0, 3],
+    ]) {
+      const next = table.map((row) => ({ ...row }));
+      const home = next.find((row) => row.id === fixture.home.id);
+      const away = next.find((row) => row.id === fixture.away.id);
+      if (home) home.points += homePoints;
+      if (away) away.points += awayPoints;
+      walk(index + 1, next);
+    }
+  }
+
+  walk(0, rows);
+  return best;
+}
+
+function pointRankRows(a, b) {
+  return b.points - a.points || a.officialRank - b.officialRank || String(a.id).localeCompare(String(b.id));
+}
+
+function pathChangeDrivers(path, model, status, opponentDistribution, eliminationReasons, annexeConstraints = { required: [], excluded: [] }) {
   if (status.kind === "eliminated") return eliminationReasons;
   const drivers = [];
 
@@ -1320,6 +1433,17 @@ function pathChangeDrivers(path, model, status, opponentDistribution, eliminatio
       .map((entry) => `${entry.slotLabel} (${formatShare(entry.share)})`);
     if (alternatives.length) {
       drivers.push(`${path.slot}'s other Annexe C sources are ${alternatives.join(", ")}.`);
+    }
+    if (annexeConstraints.required.length || annexeConstraints.excluded.length) {
+      const required = annexeConstraints.required.length
+        ? `require ${annexeConstraints.required.map((group) => `Group ${group}`).join(", ")}`
+        : "";
+      const excluded = annexeConstraints.excluded.length
+        ? `rule out ${annexeConstraints.excluded.map((group) => `Group ${group}`).join(", ")}`
+        : "";
+      drivers.push(
+        `Completed group results now ${[required, excluded].filter(Boolean).join(" and ")} in the Annexe C row set.`
+      );
     }
   } else if (path.opponent) {
     const complete = groupRemainingFixtures(path.opponent.group).length === 0;
@@ -1379,7 +1503,7 @@ function renderPath(model) {
 
   const grid = el("div", "path-grid");
   grid.appendChild(renderOpponentDistribution(scenario.opponentDistribution));
-  grid.appendChild(renderPathSection("Why this is the path", pathFacts(path, model)));
+  grid.appendChild(renderPathSection("Why this is the path", pathFacts(path, model, scenario)));
   grid.appendChild(renderPathSection("What can change this", scenario.changeDrivers));
   grid.appendChild(renderImportantMatches(path, model));
   els.pathBrowser.appendChild(grid);
@@ -1396,7 +1520,7 @@ function pathExplanation(path, model) {
   return `${path.team.name} is in slot ${path.slot}, which goes to ${path.match.match} on ${path.match.dateLabel}. That slot currently points to ${opponentName}.`;
 }
 
-function pathFacts(path, model) {
+function pathFacts(path, model, scenario = null) {
   const facts = [
     path.winnerClinched
       ? `${path.team.name}'s group slot is fixed: Group ${path.group} winner.`
@@ -1414,6 +1538,14 @@ function pathFacts(path, model) {
     facts.push(`Right now ${path.opponent?.name || `Group ${group}'s third-place team`} is the ${path.opponentSlot} team.`);
   } else if (path.opponent) {
     facts.push(`${path.opponent.name}'s current slot is ${path.opponentSlot}.`);
+  }
+  const constraints = scenario?.annexeConstraints;
+  if (constraints && (constraints.required.length || constraints.excluded.length)) {
+    const possibleRows = constrainedAnnexeRows(constraints).length;
+    const notes = [];
+    if (constraints.required.length) notes.push(`require ${constraints.required.join("")}`);
+    if (constraints.excluded.length) notes.push(`exclude ${constraints.excluded.join("")}`);
+    facts.push(`Finished-group math narrows Annexe C to ${possibleRows} of ${state.annexe.length} rows (${notes.join("; ")}).`);
   }
   if (path.match) facts.push(`${path.match.match} is scheduled for ${path.match.dateLabel} in ${path.match.city}.`);
   return facts;
@@ -1443,7 +1575,13 @@ function renderOpponentDistribution(distribution) {
       el(
         "p",
         "",
-        `${entry.slotLabel}; ${entry.count} of ${entry.total} ${entry.total === 1 ? "case" : "Annexe C scenarios"}.`
+        `${entry.slotLabel}; ${entry.count} of ${entry.total} ${
+          entry.total === 1
+            ? "case"
+            : entry.constrained
+              ? "currently possible Annexe C scenarios"
+              : "Annexe C scenarios"
+        }.`
       )
     );
     if (entry.currentProjection) {
