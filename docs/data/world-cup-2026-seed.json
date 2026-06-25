@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "name": "World Cup 2026 Local Tournament File",
-  "updatedAtUtc": "2026-06-25T21:51:28.950Z",
+  "updatedAtUtc": "2026-06-25T22:35:30.426Z",
   "source": {
     "name": "openfootball/worldcup.json",
     "url": "https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json",
-    "rawUrl": "https://raw.githubusercontent.com/openfootball/worldcup.json/ee29f66da37d0ad6ef28ca1e37cda3bd13cb723e/2026/worldcup.json",
+    "rawUrl": "https://raw.githubusercontent.com/openfootball/worldcup.json/34b2687a006da042ac2b78c1c46162c912a8b41a/2026/worldcup.json",
     "ref": "master",
     "path": "2026/worldcup.json",
-    "commitSha": "ee29f66da37d0ad6ef28ca1e37cda3bd13cb723e",
-    "commitDateUtc": "2026-06-25T15:19:57Z",
-    "commitUrl": "https://github.com/openfootball/worldcup.json/commit/ee29f66da37d0ad6ef28ca1e37cda3bd13cb723e",
+    "commitSha": "34b2687a006da042ac2b78c1c46162c912a8b41a",
+    "commitDateUtc": "2026-06-25T22:01:42Z",
+    "commitUrl": "https://github.com/openfootball/worldcup.json/commit/34b2687a006da042ac2b78c1c46162c912a8b41a",
     "license": "CC0-1.0",
     "note": "Public-domain hand-maintained fixture/results snapshot pinned to the latest upstream commit touching 2026/worldcup.json."
   },
@@ -1114,8 +1114,8 @@
         "name": "Philadelphia",
         "city": "Philadelphia"
       },
-      "statusShort": "NS",
-      "statusLong": "Not Started",
+      "statusShort": "FT",
+      "statusLong": "Match Finished",
       "home": {
         "id": 260018,
         "name": "Curaçao",
@@ -1127,8 +1127,8 @@
         "logo": ""
       },
       "goals": {
-        "home": null,
-        "away": null
+        "home": 0,
+        "away": 2
       }
     },
     {
@@ -1140,8 +1140,8 @@
         "name": "New York/New Jersey (East Rutherford)",
         "city": "New York/New Jersey"
       },
-      "statusShort": "NS",
-      "statusLong": "Not Started",
+      "statusShort": "FT",
+      "statusLong": "Match Finished",
       "home": {
         "id": 260020,
         "name": "Ecuador",
@@ -1153,8 +1153,8 @@
         "logo": ""
       },
       "goals": {
-        "home": null,
-        "away": null
+        "home": 2,
+        "away": 1
       }
     },
     {
@@ -2251,7 +2251,7 @@
     }
   ],
   "staticExport": {
-    "exportedAtUtc": "2026-06-25T21:51:29.194Z",
+    "exportedAtUtc": "2026-06-25T22:35:30.658Z",
     "note": "GitHub Pages snapshot. Rebuilt by scheduled workflow; odds evidence includes per-fixture stale metadata."
   },
   "predictions": {
@@ -2263,16 +2263,6 @@
     "2026024": {
       "home": 1,
       "away": 1,
-      "source": "odds"
-    },
-    "2026029": {
-      "home": 0,
-      "away": 2,
-      "source": "odds"
-    },
-    "2026030": {
-      "home": 2,
-      "away": 3,
       "source": "odds"
     },
     "2026035": {
@@ -2398,60 +2388,6 @@
       "providers": {
         "theOddsApi": {
           "eventId": "22f6ac06dfcc88a847920f62633e6459"
-        }
-      }
-    },
-    "2026029": {
-      "marketUsed": "1x2_totals_spread",
-      "confidence": "medium",
-      "probability": 0.874,
-      "probabilities": {
-        "home": 0.029,
-        "draw": 0.097,
-        "away": 0.874
-      },
-      "expectedGoals": {
-        "home": 0.3,
-        "away": 2.25
-      },
-      "totalGoalsLine": 2.6,
-      "goalDifferenceLine": -1.75,
-      "bookmakerCount": 36,
-      "fallbackUsed": true,
-      "topCorrectScores": null,
-      "updatedAtUtc": "2026-06-25T21:09:19.805Z",
-      "staleAfterMs": 32400000,
-      "stale": false,
-      "providers": {
-        "theOddsApi": {
-          "eventId": "a5a0b544a984ab16e564264f3e859b43"
-        }
-      }
-    },
-    "2026030": {
-      "marketUsed": "1x2_totals_spread",
-      "confidence": "medium",
-      "probability": 0.442,
-      "probabilities": {
-        "home": 0.243,
-        "draw": 0.314,
-        "away": 0.442
-      },
-      "expectedGoals": {
-        "home": 1.6,
-        "away": 2
-      },
-      "totalGoalsLine": 3.63,
-      "goalDifferenceLine": -0.36,
-      "bookmakerCount": 36,
-      "fallbackUsed": true,
-      "topCorrectScores": null,
-      "updatedAtUtc": "2026-06-25T21:09:19.805Z",
-      "staleAfterMs": 32400000,
-      "stale": false,
-      "providers": {
-        "theOddsApi": {
-          "eventId": "0ec28b84ec399bd4dffbe8d1bc72b3c4"
         }
       }
     },
@@ -2860,5 +2796,5 @@
       "Odds-API.io"
     ]
   },
-  "predictionsExportedAtUtc": "2026-06-25T21:51:29.194Z"
+  "predictionsExportedAtUtc": "2026-06-25T22:35:30.658Z"
 }
