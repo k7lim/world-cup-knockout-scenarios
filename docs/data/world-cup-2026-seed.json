@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "name": "World Cup 2026 Local Tournament File",
-  "updatedAtUtc": "2026-06-24T23:40:35.118Z",
+  "updatedAtUtc": "2026-06-25T01:18:38.859Z",
   "source": {
     "name": "openfootball/worldcup.json",
     "url": "https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json",
@@ -796,8 +796,8 @@
         "name": "Miami (Miami Gardens)",
         "city": "Miami"
       },
-      "statusShort": "NS",
-      "statusLong": "Not Started",
+      "statusShort": "FT",
+      "statusLong": "Match Finished",
       "home": {
         "id": 260012,
         "name": "Scotland",
@@ -809,8 +809,8 @@
         "logo": ""
       },
       "goals": {
-        "home": null,
-        "away": null
+        "home": 0,
+        "away": 3
       }
     },
     {
@@ -822,8 +822,8 @@
         "name": "Atlanta",
         "city": "Atlanta"
       },
-      "statusShort": "NS",
-      "statusLong": "Not Started",
+      "statusShort": "FT",
+      "statusLong": "Match Finished",
       "home": {
         "id": 260010,
         "name": "Morocco",
@@ -835,8 +835,8 @@
         "logo": ""
       },
       "goals": {
-        "home": null,
-        "away": null
+        "home": 4,
+        "away": 2
       }
     },
     {
@@ -2245,7 +2245,7 @@
     }
   ],
   "staticExport": {
-    "exportedAtUtc": "2026-06-24T23:40:35.428Z",
+    "exportedAtUtc": "2026-06-25T01:18:39.121Z",
     "note": "GitHub Pages snapshot. Rebuilt by scheduled workflow; odds evidence includes per-fixture stale metadata."
   },
   "predictions": {
@@ -2257,16 +2257,6 @@
     "2026006": {
       "home": 1,
       "away": 2,
-      "source": "odds"
-    },
-    "2026017": {
-      "home": 1,
-      "away": 2,
-      "source": "odds"
-    },
-    "2026018": {
-      "home": 3,
-      "away": 0,
       "source": "odds"
     },
     "2026023": {
@@ -2412,60 +2402,6 @@
       "providers": {
         "theOddsApi": {
           "eventId": "c0355dfc6e26ec327e379b6ef5824a5f"
-        }
-      }
-    },
-    "2026017": {
-      "marketUsed": "1x2_totals_spread",
-      "confidence": "medium",
-      "probability": 0.734,
-      "probabilities": {
-        "home": 0.093,
-        "draw": 0.174,
-        "away": 0.734
-      },
-      "expectedGoals": {
-        "home": 0.55,
-        "away": 2.05
-      },
-      "totalGoalsLine": 2.55,
-      "goalDifferenceLine": -1.5,
-      "bookmakerCount": 47,
-      "fallbackUsed": true,
-      "topCorrectScores": null,
-      "updatedAtUtc": "2026-06-24T19:53:55.662Z",
-      "staleAfterMs": 32400000,
-      "stale": false,
-      "providers": {
-        "theOddsApi": {
-          "eventId": "885ba95805db310a7bcc3fb1a7a6dd28"
-        }
-      }
-    },
-    "2026018": {
-      "marketUsed": "1x2_totals_spread",
-      "confidence": "medium",
-      "probability": 0.82,
-      "probabilities": {
-        "home": 0.82,
-        "draw": 0.126,
-        "away": 0.055
-      },
-      "expectedGoals": {
-        "home": 2.6,
-        "away": 0.5
-      },
-      "totalGoalsLine": 3.14,
-      "goalDifferenceLine": 2.09,
-      "bookmakerCount": 47,
-      "fallbackUsed": true,
-      "topCorrectScores": null,
-      "updatedAtUtc": "2026-06-24T19:53:55.662Z",
-      "staleAfterMs": 32400000,
-      "stale": false,
-      "providers": {
-        "theOddsApi": {
-          "eventId": "d1279ce7f33136a33e99ad442fc855e8"
         }
       }
     },
@@ -2982,5 +2918,5 @@
       "Odds-API.io"
     ]
   },
-  "predictionsExportedAtUtc": "2026-06-24T23:40:35.428Z"
+  "predictionsExportedAtUtc": "2026-06-25T01:18:39.121Z"
 }
