@@ -1,9 +1,61 @@
 const fs = require("fs/promises");
 const path = require("path");
 
+const SOURCE_OWNER = "openfootball";
+const SOURCE_REPO = "worldcup.json";
+const SOURCE_REF = "master";
+const SOURCE_PATH = "2026/worldcup.json";
+const TOURNAMENT_START_UTC = "2026-06-11T19:00:00.000Z";
 const SOURCE_URL =
-  "https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json";
+  `https://raw.githubusercontent.com/${SOURCE_OWNER}/${SOURCE_REPO}/${SOURCE_REF}/${SOURCE_PATH}`;
+const COMMITS_API_URL =
+  `https://api.github.com/repos/${SOURCE_OWNER}/${SOURCE_REPO}/commits?sha=${SOURCE_REF}&path=${SOURCE_PATH}&since=${encodeURIComponent(TOURNAMENT_START_UTC)}&per_page=1`;
 const OUT_PATH = path.join(__dirname, "..", "data", "world-cup-2026-seed.json");
+
+function rawSourceUrl(ref = SOURCE_REF) {
+  return `https://raw.githubusercontent.com/${SOURCE_OWNER}/${SOURCE_REPO}/${ref}/${SOURCE_PATH}`;
+}
+
+function githubHeaders(env = process.env) {
+  const headers = {
+    accept: "application/vnd.github+json",
+    "user-agent": "world-cup-2026-explorer",
+  };
+  const token = env.GITHUB_TOKEN || env.GH_TOKEN;
+  if (token) headers.authorization = `Bearer ${token}`;
+  return headers;
+}
+
+async function fetchLatestSourceCommit(options = {}) {
+  const fetchImpl = options.fetchImpl || fetch;
+  const response = await fetchImpl(COMMITS_API_URL, {
+    headers: githubHeaders(options.env),
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to check openfootball commit: ${response.status}`);
+  }
+
+  const commits = await response.json();
+  const commit = Array.isArray(commits) ? commits[0] : null;
+  if (!commit?.sha) {
+    throw new Error(`No openfootball commits found for ${SOURCE_PATH} on ${SOURCE_REF}`);
+  }
+
+  return {
+    sha: commit.sha,
+    date: commit.commit?.committer?.date || commit.commit?.author?.date || null,
+    htmlUrl: commit.html_url || `https://github.com/${SOURCE_OWNER}/${SOURCE_REPO}/commit/${commit.sha}`,
+  };
+}
+
+async function fetchSourceJson(sourceCommit, options = {}) {
+  const fetchImpl = options.fetchImpl || fetch;
+  const response = await fetchImpl(rawSourceUrl(sourceCommit.sha));
+  if (!response.ok) {
+    throw new Error(`Failed to download openfootball seed: ${response.status}`);
+  }
+  return response.json();
+}
 
 function groupLetter(groupName) {
   const match = String(groupName || "").match(/Group\s+([A-L])/i);
@@ -36,13 +88,9 @@ function makeTeamId(index) {
   return 260000 + index;
 }
 
-async function buildSeed() {
-  const response = await fetch(SOURCE_URL);
-  if (!response.ok) {
-    throw new Error(`Failed to download openfootball seed: ${response.status}`);
-  }
-
-  const source = await response.json();
+async function buildSeed(options = {}) {
+  const sourceCommit = await fetchLatestSourceCommit(options);
+  const source = await fetchSourceJson(sourceCommit, options);
   const teamIds = new Map();
   const groupTeams = new Map();
   const fixtures = [];
@@ -102,9 +150,15 @@ async function buildSeed() {
     source: {
       name: "openfootball/worldcup.json",
       url: SOURCE_URL,
+      rawUrl: rawSourceUrl(sourceCommit.sha),
+      ref: SOURCE_REF,
+      path: SOURCE_PATH,
+      commitSha: sourceCommit.sha,
+      commitDateUtc: sourceCommit.date,
+      commitUrl: sourceCommit.htmlUrl,
       license: "CC0-1.0",
       note:
-        "Public-domain hand-maintained fixture/results snapshot. Not live; update this file or import scores as needed.",
+        "Public-domain hand-maintained fixture/results snapshot pinned to the latest upstream commit touching 2026/worldcup.json.",
     },
     groups,
     fixtures,
@@ -134,7 +188,13 @@ if (require.main === module) {
 
 module.exports = {
   SOURCE_URL,
+  COMMITS_API_URL,
+  SOURCE_REF,
+  SOURCE_PATH,
+  TOURNAMENT_START_UTC,
   OUT_PATH,
+  rawSourceUrl,
+  fetchLatestSourceCommit,
   buildSeed,
   writeSeed,
 };

@@ -84,11 +84,17 @@ deploy_paths=(
   justfile
   package.json
   public/app.js
+  public/index.html
+  public/styles.css
   server.js
+  scripts/build-openfootball-seed.js
   scripts/export-static-site.js
+  scripts/should-refresh-static-site.js
   scripts/sync-github-secrets.sh
   scripts/deploy-github-pages.sh
+  test/openfootball-seed.test.js
   test/predictions.test.js
+  test/refresh-window.test.js
   test/static-export.test.js
   .github/workflows/refresh-static-site.yml
 )

@@ -17,6 +17,7 @@ globalThis.__test = {
   getFixtureScore,
   normalizeLocalSeed,
     computeTournament,
+    annexeDestinationsForThirdGroup,
     safeNumber,
     teamFlagEmoji,
     teamShortName,
@@ -146,6 +147,35 @@ test("played-only group status ignores editable predictions", () => {
 
   assert.equal(current.find((team) => team.name === "Delta").points, 0);
   assert.equal(projected.find((team) => team.name === "Delta").points, 3);
+});
+
+test("same-group ranking uses head-to-head before overall goal difference", () => {
+  const { state, computeTournament, normalizeLocalSeed } = loadApp();
+  const seed = require("../data/world-cup-2026-seed.json");
+  normalizeLocalSeed(seed);
+  state.predictions[2026023] = { home: 1, away: 0, source: "manual" };
+  state.predictions[2026024] = { home: 0, away: 5, source: "manual" };
+
+  const groupD = computeTournament().rankedGroups.get("D");
+
+  assert.deepEqual(
+    plain(groupD.slice(0, 2).map((team) => ({ name: team.name, points: team.points, gd: team.gd }))),
+    [
+      { name: "USA", points: 6, gd: 4 },
+      { name: "Australia", points: 6, gd: 5 },
+    ]
+  );
+});
+
+test("Annexe C almost always sends qualifying Group B third place to 1D", () => {
+  const { state, annexeDestinationsForThirdGroup } = loadApp();
+  state.annexe = require("../data/annexe-c.json");
+
+  const destinations = annexeDestinationsForThirdGroup("B");
+
+  assert.equal(destinations.total, 330);
+  assert.deepEqual(plain(destinations.slots["1D"]), { count: 329, exceptions: ["BEGHIJKL"] });
+  assert.deepEqual(plain(destinations.slots["1E"]), { count: 1, exceptions: [] });
 });
 
 test("static seed imports bundled odds predictions without replacing manual picks", () => {

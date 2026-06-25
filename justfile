@@ -144,6 +144,7 @@ check:
     node -c server.js
     node -c public/app.js
     node -c scripts/build-openfootball-seed.js
+    node -c scripts/should-refresh-static-site.js
     jq -e '.schemaVersion == 1 and (.groups | length == 12) and (.fixtures | length == 72) and ([.fixtures[].id] | unique | length == 72)' data/world-cup-2026-seed.json >/dev/null
     jq -e 'length == 495' data/annexe-c.json >/dev/null
 

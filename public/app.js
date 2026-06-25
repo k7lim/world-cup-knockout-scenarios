@@ -320,24 +320,29 @@ const els = {
   groupsTabBtn: document.getElementById("groupsTabBtn"),
   thirdTabBtn: document.getElementById("thirdTabBtn"),
   bracketTabBtn: document.getElementById("bracketTabBtn"),
+  pathTabBtn: document.getElementById("pathTabBtn"),
   groupsTab: document.getElementById("groupsTab"),
   thirdTab: document.getElementById("thirdTab"),
   bracketTab: document.getElementById("bracketTab"),
+  pathTab: document.getElementById("pathTab"),
   predictionModeToggle: document.getElementById("predictionModeToggle"),
   groupsModeLabel: document.getElementById("groupsModeLabel"),
   thirdModeLabel: document.getElementById("thirdModeLabel"),
   bracketModeLabel: document.getElementById("bracketModeLabel"),
+  pathModeLabel: document.getElementById("pathModeLabel"),
   predictionHelpBtn: document.getElementById("predictionHelpBtn"),
   predictionHelp: document.getElementById("predictionHelp"),
   annexeHelpBtn: document.getElementById("annexeHelpBtn"),
   annexeHelp: document.getElementById("annexeHelp"),
   groupFilter: document.getElementById("groupFilter"),
   fixtureGroupFilter: document.getElementById("fixtureGroupFilter"),
+  pathTeamFilter: document.getElementById("pathTeamFilter"),
   fixturesToggleBtn: document.getElementById("fixturesToggleBtn"),
   ticketMatchFilter: document.getElementById("ticketMatchFilter"),
   groupsGrid: document.getElementById("groupsGrid"),
   fixturesList: document.getElementById("fixturesList"),
   bracketGrid: document.getElementById("bracketGrid"),
+  pathBrowser: document.getElementById("pathBrowser"),
   qualifiedCount: document.getElementById("qualifiedCount"),
   annexeOption: document.getElementById("annexeOption"),
   thirdQualifierGroups: document.getElementById("thirdQualifierGroups"),
@@ -358,6 +363,7 @@ const state = {
   odds: new Map(),
   selectedGroup: "all",
   selectedFixtureGroup: "all",
+  selectedPathTeam: "USA",
   fixtureListExpanded: false,
   selectedTicketMatch: "all",
   activeTab: "groups",
@@ -515,6 +521,7 @@ function normalizeLocalSeed(seed) {
     .filter((fixture) => fixture.group);
 
   populateGroupFilters();
+  populatePathTeamFilter();
   populateTicketFilter();
   const imported = applyOddsImport(seed, "syncOdds", { persist: false });
   state.sourceWarnings = evidenceWarningsFromResponse(seed);
@@ -545,6 +552,19 @@ function populateTicketFilter() {
   }
   els.ticketMatchFilter.innerHTML = options.join("");
   els.ticketMatchFilter.value = state.selectedTicketMatch;
+}
+
+function populatePathTeamFilter() {
+  const teams = Array.from(state.teamMeta.values()).sort((a, b) => a.name.localeCompare(b.name));
+  const current = state.selectedPathTeam || "USA";
+  els.pathTeamFilter.innerHTML = teams
+    .map((team) => `<option value="${team.id}">${team.name}</option>`)
+    .join("");
+  const selected = teams.find((team) => team.name === current || String(team.id) === String(current));
+  if (selected) {
+    els.pathTeamFilter.value = String(selected.id);
+    state.selectedPathTeam = String(selected.id);
+  }
 }
 
 function getFixtureScore(fixture, options = {}) {
@@ -631,6 +651,60 @@ function rankRows(a, b) {
   );
 }
 
+function rankGroupRows(rows, group, options = {}) {
+  const byOverall = [...rows].sort((a, b) => b.points - a.points || rankRows(a, b));
+  const ranked = [];
+  for (let index = 0; index < byOverall.length;) {
+    const tied = byOverall.filter((row) => row.points === byOverall[index].points);
+    ranked.push(...rankPointTie(tied, group, options));
+    index += tied.length;
+  }
+  return ranked;
+}
+
+function rankPointTie(rows, group, options = {}) {
+  if (rows.length < 2) return rows;
+  const miniStats = headToHeadStats(rows, group, options);
+  const sorted = [...rows].sort((a, b) => {
+    const left = miniStats.get(a.id);
+    const right = miniStats.get(b.id);
+    return (
+      right.points - left.points ||
+      right.gd - left.gd ||
+      right.gf - left.gf ||
+      0
+    );
+  });
+  const segments = [];
+  for (let index = 0; index < sorted.length;) {
+    const current = miniStats.get(sorted[index].id);
+    const segment = sorted.filter((row) => {
+      const stats = miniStats.get(row.id);
+      return stats.points === current.points && stats.gd === current.gd && stats.gf === current.gf;
+    });
+    segments.push(segment);
+    index += segment.length;
+  }
+  if (segments.length === 1 && segments[0].length === rows.length) {
+    return [...rows].sort(rankRows);
+  }
+  return segments.flatMap((segment) =>
+    segment.length > 1 ? rankPointTie(segment, group, options) : segment
+  );
+}
+
+function headToHeadStats(rows, group, options = {}) {
+  const ids = new Set(rows.map((row) => row.id));
+  const table = new Map(rows.map((row) => [row.id, emptyTeamStats(row)]));
+  for (const fixture of state.fixtures) {
+    if (fixture.group !== group || !ids.has(fixture.home.id) || !ids.has(fixture.away.id)) continue;
+    const score = getFixtureScore(fixture, options);
+    if (score.home === null || score.away === null) continue;
+    applyResult(table, fixture.home, fixture.away, score.home, score.away);
+  }
+  return table;
+}
+
 function computeTournament(options = {}) {
   const warnings = [...state.sourceWarnings];
   const groupTables = new Map();
@@ -661,7 +735,7 @@ function computeTournament(options = {}) {
   const thirds = [];
 
   for (const group of GROUPS) {
-    const rows = Array.from(groupTables.get(group)?.values() || []).sort(rankRows);
+    const rows = rankGroupRows(Array.from(groupTables.get(group)?.values() || []), group, options);
     rankedGroups.set(group, rows);
     if (rows[0]) winners.set(group, rows[0]);
     if (rows[1]) runnersUp.set(group, rows[1]);
@@ -958,6 +1032,233 @@ function resolveSlot(slot, model) {
     return model.thirdRankings.find((team) => team.group === slot[1]);
   }
   return null;
+}
+
+function annexeDestinationsForThirdGroup(group) {
+  const thirdSlot = `3${String(group || "").toUpperCase()}`;
+  const rows = state.annexe.filter((row) => row.qualifiers?.includes(thirdSlot[1]));
+  const slots = {};
+  const matches = rows.map((row) => {
+    const destination = Object.entries(row.slots || {}).find(([, slot]) => slot === thirdSlot)?.[0] || null;
+    if (destination) {
+      slots[destination] ||= { count: 0, exceptions: [] };
+      slots[destination].count += 1;
+    }
+    return { qualifiers: row.qualifiers, destination };
+  });
+  const topSlot = Object.entries(slots).sort((a, b) => b[1].count - a[1].count)[0]?.[0] || null;
+  if (topSlot) {
+    slots[topSlot].exceptions = matches
+      .filter((match) => match.destination !== topSlot)
+      .map((match) => match.qualifiers);
+  }
+  return {
+    group: thirdSlot[1],
+    total: rows.length,
+    slots,
+  };
+}
+
+function findTeamRow(teamIdOrName, model) {
+  const wanted = String(teamIdOrName || "").toLowerCase();
+  for (const [group, rows] of model.rankedGroups.entries()) {
+    const index = rows.findIndex(
+      (team) => String(team.id) === String(teamIdOrName) || team.name.toLowerCase() === wanted
+    );
+    if (index !== -1) return { team: rows[index], group, rank: index + 1 };
+  }
+  return null;
+}
+
+function findRoundOf32MatchForSlot(slot, model) {
+  return ROUND_OF_32.find((match) => match.home === slot || resolvedAwaySlot(match, model) === slot) || null;
+}
+
+function isTeamGroupWinnerClinched(team, group) {
+  const currentModel = computeTournament({ includePredictions: false });
+  const rows = currentModel.rankedGroups.get(group) || [];
+  const current = rows.find((row) => row.id === team.id);
+  if (!current || rows[0]?.id !== team.id) return false;
+  for (const rival of rows) {
+    if (rival.id === team.id) continue;
+    const remaining = state.fixtures.filter(
+      (fixture) =>
+        fixture.group === group &&
+        !isLockedFixture(fixture) &&
+        (fixture.home.id === rival.id || fixture.away.id === rival.id)
+    ).length;
+    const maxPoints = rival.points + remaining * 3;
+    if (maxPoints > current.points) return false;
+    if (maxPoints === current.points && !teamBeatRivalInCompletedMatch(team, rival, group)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function teamBeatRivalInCompletedMatch(team, rival, group) {
+  return state.fixtures.some((fixture) => {
+    if (fixture.group !== group || !isLockedFixture(fixture)) return false;
+    const teamHome = fixture.home.id === team.id && fixture.away.id === rival.id;
+    const teamAway = fixture.away.id === team.id && fixture.home.id === rival.id;
+    if (!teamHome && !teamAway) return false;
+    return teamHome ? fixture.goals.home > fixture.goals.away : fixture.goals.away > fixture.goals.home;
+  });
+}
+
+function computeTeamPath(teamIdOrName, model) {
+  const row = findTeamRow(teamIdOrName, model);
+  if (!row) return null;
+  const slot = row.rank <= 3 ? `${row.rank}${row.group}` : null;
+  const thirdQualifies = row.rank === 3 && model.thirdQualifierGroups.includes(row.group);
+  const qualified = row.rank <= 2 || thirdQualifies;
+  const match = qualified && slot ? findRoundOf32MatchForSlot(slot, model) : null;
+  const opponentSlot = match
+    ? match.home === slot
+      ? resolvedAwaySlot(match, model)
+      : match.home
+    : null;
+  const opponent = opponentSlot ? resolveSlot(opponentSlot, model) : null;
+  return {
+    ...row,
+    slot,
+    qualified,
+    match,
+    opponentSlot,
+    opponent,
+    winnerClinched: row.rank === 1 && isTeamGroupWinnerClinched(row.team, row.group),
+  };
+}
+
+function renderPath(model) {
+  els.pathBrowser.innerHTML = "";
+  const selected = state.selectedPathTeam || "USA";
+  const path = computeTeamPath(selected, model) || computeTeamPath("USA", model);
+  if (!path) {
+    els.pathBrowser.appendChild(emptyState("No team path is available yet."));
+    return;
+  }
+
+  const hero = el("article", "path-hero");
+  const eyebrow = path.winnerClinched
+    ? `${path.team.name} has clinched Group ${path.group}.`
+    : `${path.team.name} currently projects as ${ordinal(path.rank)} in Group ${path.group}.`;
+  hero.appendChild(el("p", "path-kicker", eyebrow));
+  hero.appendChild(
+    el(
+      "h3",
+      "",
+      path.opponent
+        ? `Most likely next opponent: ${path.opponent.name}`
+        : path.qualified
+          ? "Next opponent depends on the third-place lookup"
+          : "No knockout opponent in the current projection"
+    )
+  );
+  hero.appendChild(el("p", "", pathExplanation(path, model)));
+  els.pathBrowser.appendChild(hero);
+
+  const grid = el("div", "path-grid");
+  grid.appendChild(renderPathSection("Why this is the path", pathFacts(path, model)));
+  grid.appendChild(renderPathSection("What could change this", pathChangeCards(path, model)));
+  grid.appendChild(renderImportantMatches(path, model));
+  els.pathBrowser.appendChild(grid);
+}
+
+function pathExplanation(path, model) {
+  if (!path.qualified) {
+    return `${path.team.name} is outside the qualifying places in this view. Change the score picks to see a knockout route.`;
+  }
+  if (!path.match) {
+    return "The team is in a qualifying place, but the Round of 32 slot is not resolved yet.";
+  }
+  const opponentName = path.opponent?.name || path.opponentSlot || "a third-place team";
+  return `${path.team.name} is in slot ${path.slot}, which goes to ${path.match.match} on ${path.match.dateLabel}. That slot currently points to ${opponentName}.`;
+}
+
+function pathFacts(path, model) {
+  const facts = [
+    path.winnerClinched
+      ? `${path.team.name}'s group slot is fixed: Group ${path.group} winner.`
+      : `${path.team.name}'s current slot is ${path.slot || "outside the bracket"}.`,
+  ];
+  if (path.opponentSlot?.startsWith("3")) {
+    const group = path.opponentSlot[1];
+    const annexe = annexeDestinationsForThirdGroup(group);
+    const top = Object.entries(annexe.slots).sort((a, b) => b[1].count - a[1].count)[0];
+    if (top) {
+      facts.push(
+        `When Group ${group}'s third-place team qualifies, Annexe C sends that team to ${top[0]} in ${top[1].count} of ${annexe.total} combinations.`
+      );
+    }
+    facts.push(`Right now ${path.opponent?.name || `Group ${group}'s third-place team`} is the ${path.opponentSlot} team.`);
+  } else if (path.opponent) {
+    facts.push(`${path.opponent.name}'s current slot is ${path.opponentSlot}.`);
+  }
+  if (path.match) facts.push(`${path.match.match} is scheduled for ${path.match.dateLabel} in ${path.match.city}.`);
+  return facts;
+}
+
+function pathChangeCards(path, model) {
+  const cards = [];
+  const opponentGroup = path.opponentSlot?.startsWith("3") ? path.opponentSlot[1] : path.opponent?.group;
+  if (path.opponent?.name === "Bosnia & Herzegovina" && opponentGroup === "B") {
+    cards.push("Bosnia finishes second in Group B, which sends them to the 2B slot instead.");
+    cards.push("Bosnia loses the Group B third-place race and finishes fourth.");
+    cards.push("Bosnia finishes third but misses the eight-team third-place cutoff.");
+    const annexe = annexeDestinationsForThirdGroup("B");
+    const exceptionCount = annexe.slots["1D"]?.exceptions?.length || 0;
+    if (exceptionCount) {
+      cards.push(`A rare Annexe C combination redirects Group B's third-place team away from USA. That is ${exceptionCount} of ${annexe.total} combinations.`);
+    }
+    return cards;
+  }
+  if (opponentGroup) {
+    cards.push(`The Group ${opponentGroup} standings can move the current opponent into a different finishing place.`);
+  }
+  if (path.opponentSlot?.startsWith("3")) {
+    cards.push("The third-place cutoff can remove that group from the knockout field.");
+    cards.push("Annexe C can redirect the qualifying third-place groups depending on which eight groups survive.");
+  }
+  if (!cards.length) cards.push("The path changes if either team moves to a different group finishing place.");
+  return cards;
+}
+
+function renderPathSection(title, items) {
+  const section = el("section", "path-panel");
+  section.appendChild(el("h3", "", title));
+  const list = el("div", "path-card-list");
+  for (const item of items) list.appendChild(el("div", "path-card", item));
+  section.appendChild(list);
+  return section;
+}
+
+function renderImportantMatches(path, model) {
+  const section = el("section", "path-panel important-matches");
+  section.appendChild(el("h3", "", "Matches that matter"));
+  const groups = new Set([path.group]);
+  if (path.opponentSlot?.startsWith("3")) groups.add(path.opponentSlot[1]);
+  if (path.opponent?.group) groups.add(path.opponent.group);
+  const fixtures = state.fixtures
+    .filter((fixture) => groups.has(fixture.group) && !isLockedFixture(fixture))
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
+  const list = el("div", "path-card-list");
+  for (const fixture of fixtures) {
+    const card = el("div", "path-card match-watch");
+    card.appendChild(el("strong", "", `${fixture.home.name} vs ${fixture.away.name}`));
+    card.appendChild(el("span", "", `Group ${fixture.group} | ${formatTime(fixture.date)}`));
+    list.appendChild(card);
+  }
+  if (!fixtures.length) list.appendChild(el("div", "path-card", "No remaining group matches directly affect this path."));
+  section.appendChild(list);
+  return section;
+}
+
+function ordinal(value) {
+  if (value === 1) return "1st";
+  if (value === 2) return "2nd";
+  if (value === 3) return "3rd";
+  return `${value}th`;
 }
 
 function renderBracket(model) {
@@ -1289,6 +1590,9 @@ function renderModeLabels() {
   els.bracketModeLabel.textContent = state.predictionsEnabled
     ? "Projected path, using sidebar picks as results."
     : "Current path, using official and live results only.";
+  els.pathModeLabel.textContent = state.predictionsEnabled
+    ? "Likely path, using sidebar picks as results."
+    : "Current path, using official and live results only.";
 }
 
 function renderTabs() {
@@ -1296,6 +1600,7 @@ function renderTabs() {
     { key: "groups", button: els.groupsTabBtn, panel: els.groupsTab },
     { key: "third", button: els.thirdTabBtn, panel: els.thirdTab },
     { key: "bracket", button: els.bracketTabBtn, panel: els.bracketTab },
+    { key: "path", button: els.pathTabBtn, panel: els.pathTab },
   ];
 
   for (const tab of tabs) {
@@ -1326,6 +1631,7 @@ function renderAll() {
   renderGroups(activeModel);
   renderFixtures();
   renderBracket(activeModel);
+  renderPath(activeModel);
   renderThirdPlace(activeModel);
   renderWarnings(activeModel);
 }
@@ -1427,6 +1733,7 @@ function setBusy(busy) {
     els.clearPredictionsBtn,
     els.groupFilter,
     els.fixtureGroupFilter,
+    els.pathTeamFilter,
     els.ticketMatchFilter,
     els.predictionModeToggle,
   ].forEach((node) => {
@@ -1615,6 +1922,7 @@ function bindEvents() {
   els.groupsTabBtn.addEventListener("click", () => setActiveTab("groups"));
   els.thirdTabBtn.addEventListener("click", () => setActiveTab("third"));
   els.bracketTabBtn.addEventListener("click", () => setActiveTab("bracket"));
+  els.pathTabBtn.addEventListener("click", () => setActiveTab("path"));
   els.predictionModeToggle.addEventListener("change", () => {
     state.predictionsEnabled = els.predictionModeToggle.checked;
     renderAll();
@@ -1651,6 +1959,10 @@ function bindEvents() {
     state.selectedFixtureGroup = els.fixtureGroupFilter.value;
     state.fixtureListExpanded = false;
     renderFixtures();
+  });
+  els.pathTeamFilter.addEventListener("change", () => {
+    state.selectedPathTeam = els.pathTeamFilter.value;
+    renderAll();
   });
   els.fixturesToggleBtn.addEventListener("click", () => {
     state.fixtureListExpanded = !state.fixtureListExpanded;

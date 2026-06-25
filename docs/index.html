@@ -76,6 +76,9 @@
                 <button id="bracketTabBtn" class="tab-btn" type="button" role="tab" aria-selected="false" aria-controls="bracketTab">
                   Bracket
                 </button>
+                <button id="pathTabBtn" class="tab-btn" type="button" role="tab" aria-selected="false" aria-controls="pathTab">
+                  Path
+                </button>
               </div>
             </div>
 
@@ -139,6 +142,19 @@
                 </div>
               </div>
               <div id="bracketGrid" class="bracket-grid"></div>
+            </section>
+
+            <section id="pathTab" class="tab-panel" role="tabpanel" aria-labelledby="pathTabBtn" hidden>
+              <div class="section-head">
+                <div>
+                  <h2>Who We Get</h2>
+                  <p id="pathModeLabel">Likely path, using sidebar picks as results.</p>
+                </div>
+                <select id="pathTeamFilter" aria-label="Choose team for path view">
+                  <option value="USA">USA</option>
+                </select>
+              </div>
+              <div id="pathBrowser" class="path-browser"></div>
             </section>
           </section>
         </section>

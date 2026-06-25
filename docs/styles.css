@@ -727,6 +727,87 @@ tr:last-child td {
   grid-template-columns: minmax(min(100%, 420px), 560px);
 }
 
+.path-browser {
+  display: grid;
+  gap: 12px;
+}
+
+.path-hero,
+.path-panel {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.path-hero {
+  padding: 18px;
+}
+
+.path-kicker {
+  margin: 0 0 8px;
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.path-hero h3 {
+  margin: 0 0 8px;
+  color: var(--ink);
+  font-size: 24px;
+  line-height: 1.15;
+  text-transform: none;
+}
+
+.path-hero p:last-child {
+  max-width: 780px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.path-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+
+.path-panel {
+  padding: 14px;
+}
+
+.path-panel h3 {
+  margin-top: 0;
+}
+
+.path-card-list {
+  display: grid;
+  gap: 8px;
+}
+
+.path-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-soft);
+  padding: 10px;
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.match-watch {
+  display: grid;
+  gap: 3px;
+}
+
+.match-watch span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
 .bracket-regions {
   --bracket-column-gap: 34px;
   --bracket-row-gap: 18px;
@@ -1251,6 +1332,10 @@ code {
   .bracket-region,
   .finals-lane {
     min-width: 0;
+  }
+
+  .path-grid {
+    grid-template-columns: 1fr;
   }
 
   .region-header {
