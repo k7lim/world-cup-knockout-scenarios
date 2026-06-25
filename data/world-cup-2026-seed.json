@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "name": "World Cup 2026 Local Tournament File",
-  "updatedAtUtc": "2026-06-25T02:46:57.542Z",
+  "updatedAtUtc": "2026-06-25T04:29:34.337Z",
   "source": {
     "name": "openfootball/worldcup.json",
     "url": "https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json",
-    "rawUrl": "https://raw.githubusercontent.com/openfootball/worldcup.json/6209d7efaa03e30d8b20ee036a9ba5fda85572bf/2026/worldcup.json",
+    "rawUrl": "https://raw.githubusercontent.com/openfootball/worldcup.json/88365dfface7a1184ea4f6e6512b2302eb8b11c6/2026/worldcup.json",
     "ref": "master",
     "path": "2026/worldcup.json",
-    "commitSha": "6209d7efaa03e30d8b20ee036a9ba5fda85572bf",
-    "commitDateUtc": "2026-06-25T00:05:58Z",
-    "commitUrl": "https://github.com/openfootball/worldcup.json/commit/6209d7efaa03e30d8b20ee036a9ba5fda85572bf",
+    "commitSha": "88365dfface7a1184ea4f6e6512b2302eb8b11c6",
+    "commitDateUtc": "2026-06-25T03:01:24Z",
+    "commitUrl": "https://github.com/openfootball/worldcup.json/commit/88365dfface7a1184ea4f6e6512b2302eb8b11c6",
     "license": "CC0-1.0",
     "note": "Public-domain hand-maintained fixture/results snapshot pinned to the latest upstream commit touching 2026/worldcup.json."
   },
@@ -490,8 +490,8 @@
         "name": "Mexico City",
         "city": "Mexico City"
       },
-      "statusShort": "NS",
-      "statusLong": "Not Started",
+      "statusShort": "FT",
+      "statusLong": "Match Finished",
       "home": {
         "id": 260004,
         "name": "Czech Republic",
@@ -503,8 +503,8 @@
         "logo": ""
       },
       "goals": {
-        "home": null,
-        "away": null
+        "home": 0,
+        "away": 3
       }
     },
     {
@@ -516,8 +516,8 @@
         "name": "Monterrey (Guadalupe)",
         "city": "Monterrey"
       },
-      "statusShort": "NS",
-      "statusLong": "Not Started",
+      "statusShort": "FT",
+      "statusLong": "Match Finished",
       "home": {
         "id": 260002,
         "name": "South Africa",
@@ -529,8 +529,8 @@
         "logo": ""
       },
       "goals": {
-        "home": null,
-        "away": null
+        "home": 1,
+        "away": 0
       }
     },
     {
