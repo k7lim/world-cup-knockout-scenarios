@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "name": "World Cup 2026 Local Tournament File",
-  "updatedAtUtc": "2026-06-25T22:35:30.426Z",
+  "updatedAtUtc": "2026-06-26T08:34:58.311Z",
   "source": {
     "name": "openfootball/worldcup.json",
     "url": "https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json",
-    "rawUrl": "https://raw.githubusercontent.com/openfootball/worldcup.json/34b2687a006da042ac2b78c1c46162c912a8b41a/2026/worldcup.json",
+    "rawUrl": "https://raw.githubusercontent.com/openfootball/worldcup.json/25485a3b2179a9c6bc21f5e26aa3cab80a600f03/2026/worldcup.json",
     "ref": "master",
     "path": "2026/worldcup.json",
-    "commitSha": "34b2687a006da042ac2b78c1c46162c912a8b41a",
-    "commitDateUtc": "2026-06-25T22:01:42Z",
-    "commitUrl": "https://github.com/openfootball/worldcup.json/commit/34b2687a006da042ac2b78c1c46162c912a8b41a",
+    "commitSha": "25485a3b2179a9c6bc21f5e26aa3cab80a600f03",
+    "commitDateUtc": "2026-06-26T04:05:56Z",
+    "commitUrl": "https://github.com/openfootball/worldcup.json/commit/25485a3b2179a9c6bc21f5e26aa3cab80a600f03",
     "license": "CC0-1.0",
     "note": "Public-domain hand-maintained fixture/results snapshot pinned to the latest upstream commit touching 2026/worldcup.json."
   },
@@ -958,8 +958,8 @@
         "name": "Los Angeles (Inglewood)",
         "city": "Los Angeles"
       },
-      "statusShort": "NS",
-      "statusLong": "Not Started",
+      "statusShort": "FT",
+      "statusLong": "Match Finished",
       "home": {
         "id": 260016,
         "name": "Turkey",
@@ -971,8 +971,8 @@
         "logo": ""
       },
       "goals": {
-        "home": null,
-        "away": null
+        "home": 3,
+        "away": 2
       }
     },
     {
@@ -984,8 +984,8 @@
         "name": "San Francisco Bay Area (Santa Clara)",
         "city": "San Francisco Bay Area"
       },
-      "statusShort": "NS",
-      "statusLong": "Not Started",
+      "statusShort": "FT",
+      "statusLong": "Match Finished",
       "home": {
         "id": 260014,
         "name": "Paraguay",
@@ -997,8 +997,8 @@
         "logo": ""
       },
       "goals": {
-        "home": null,
-        "away": null
+        "home": 0,
+        "away": 0
       }
     },
     {
@@ -1270,8 +1270,8 @@
         "name": "Dallas (Arlington)",
         "city": "Dallas"
       },
-      "statusShort": "NS",
-      "statusLong": "Not Started",
+      "statusShort": "FT",
+      "statusLong": "Match Finished",
       "home": {
         "id": 260022,
         "name": "Japan",
@@ -1283,8 +1283,8 @@
         "logo": ""
       },
       "goals": {
-        "home": null,
-        "away": null
+        "home": 1,
+        "away": 1
       }
     },
     {
@@ -1296,8 +1296,8 @@
         "name": "Kansas City",
         "city": "Kansas City"
       },
-      "statusShort": "NS",
-      "statusLong": "Not Started",
+      "statusShort": "FT",
+      "statusLong": "Match Finished",
       "home": {
         "id": 260024,
         "name": "Tunisia",
@@ -1309,8 +1309,8 @@
         "logo": ""
       },
       "goals": {
-        "home": null,
-        "away": null
+        "home": 1,
+        "away": 3
       }
     },
     {
