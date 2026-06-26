@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "name": "World Cup 2026 Local Tournament File",
-  "updatedAtUtc": "2026-06-26T20:52:10.082Z",
+  "updatedAtUtc": "2026-06-26T21:34:24.042Z",
   "source": {
     "name": "openfootball/worldcup.json",
     "url": "https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json",
-    "rawUrl": "https://raw.githubusercontent.com/openfootball/worldcup.json/05c191fa1a0f9d914f2edfdb9380ccc4f51d7ec2/2026/worldcup.json",
+    "rawUrl": "https://raw.githubusercontent.com/openfootball/worldcup.json/7869b530a123b45446c5364fa1b4c5c1c164639d/2026/worldcup.json",
     "ref": "master",
     "path": "2026/worldcup.json",
-    "commitSha": "05c191fa1a0f9d914f2edfdb9380ccc4f51d7ec2",
-    "commitDateUtc": "2026-06-26T12:42:31Z",
-    "commitUrl": "https://github.com/openfootball/worldcup.json/commit/05c191fa1a0f9d914f2edfdb9380ccc4f51d7ec2",
+    "commitSha": "7869b530a123b45446c5364fa1b4c5c1c164639d",
+    "commitDateUtc": "2026-06-26T21:05:58Z",
+    "commitUrl": "https://github.com/openfootball/worldcup.json/commit/7869b530a123b45446c5364fa1b4c5c1c164639d",
     "license": "CC0-1.0",
     "note": "Public-domain hand-maintained fixture/results snapshot pinned to the latest upstream commit touching 2026/worldcup.json."
   },
@@ -1738,8 +1738,8 @@
         "name": "Boston (Foxborough)",
         "city": "Boston"
       },
-      "statusShort": "NS",
-      "statusLong": "Not Started",
+      "statusShort": "FT",
+      "statusLong": "Match Finished",
       "home": {
         "id": 260036,
         "name": "Norway",
@@ -1751,8 +1751,8 @@
         "logo": ""
       },
       "goals": {
-        "home": null,
-        "away": null
+        "home": 1,
+        "away": 4
       }
     },
     {
@@ -1764,8 +1764,8 @@
         "name": "Toronto",
         "city": "Toronto"
       },
-      "statusShort": "NS",
-      "statusLong": "Not Started",
+      "statusShort": "FT",
+      "statusLong": "Match Finished",
       "home": {
         "id": 260034,
         "name": "Senegal",
@@ -1777,8 +1777,8 @@
         "logo": ""
       },
       "goals": {
-        "home": null,
-        "away": null
+        "home": 5,
+        "away": 0
       }
     },
     {
