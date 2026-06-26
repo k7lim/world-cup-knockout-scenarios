@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "name": "World Cup 2026 Local Tournament File",
-  "updatedAtUtc": "2026-06-26T23:14:14.799Z",
+  "updatedAtUtc": "2026-06-26T23:44:46.243Z",
   "source": {
     "name": "openfootball/worldcup.json",
     "url": "https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json",
@@ -2251,7 +2251,7 @@
     }
   ],
   "staticExport": {
-    "exportedAtUtc": "2026-06-26T23:14:14.943Z",
+    "exportedAtUtc": "2026-06-26T23:44:46.385Z",
     "note": "GitHub Pages snapshot. Rebuilt by scheduled workflow; odds evidence includes per-fixture stale metadata."
   },
   "predictions": {
@@ -2604,5 +2604,5 @@
       "Odds-API.io"
     ]
   },
-  "predictionsExportedAtUtc": "2026-06-26T23:14:14.943Z"
+  "predictionsExportedAtUtc": "2026-06-26T23:44:46.385Z"
 }
