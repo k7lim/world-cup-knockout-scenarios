@@ -1457,6 +1457,101 @@ function pathChangeDrivers(path, model, status, opponentDistribution, eliminatio
   return Array.from(new Set(drivers));
 }
 
+function importantMatchesForPathScenario(scenario, model) {
+  if (!scenario?.path) return [];
+  const path = scenario.path;
+  const excludedGroups = new Set(scenario.annexeConstraints?.excluded || []);
+  const sourceGroups = new Set(
+    (scenario.opponentDistribution || [])
+      .map((entry) => slotGroup(entry.slot))
+      .filter((group) => group && !excludedGroups.has(group))
+  );
+  if (path.opponentSlot?.startsWith("3")) {
+    const group = slotGroup(path.opponentSlot);
+    if (group && !excludedGroups.has(group)) sourceGroups.add(group);
+  }
+
+  const items = new Map();
+  const addGroupFixtures = (group, reason, category, priority, affectedSlot = null) => {
+    if (!group || excludedGroups.has(group)) return;
+    for (const fixture of remainingFixturesForGroup(group).slice(0, 2)) {
+      const previous = items.get(fixture.id);
+      if (previous && previous.priority <= priority) continue;
+      items.set(fixture.id, {
+        fixture,
+        reason,
+        category,
+        affectedSlot,
+        group,
+        priority,
+      });
+    }
+  };
+
+  if (!isPathSlotFixed(path)) {
+    addGroupFixtures(path.group, `Can change ${path.team.name}'s slot`, "own-slot", 10, path.slot);
+  }
+
+  const projectedOpponentGroup = slotGroup(path.opponentSlot) || path.opponent?.group;
+  if (projectedOpponentGroup && !excludedGroups.has(projectedOpponentGroup)) {
+    addGroupFixtures(
+      projectedOpponentGroup,
+      `Can change who occupies ${path.opponentSlot}`,
+      "projected-opponent",
+      20,
+      path.opponentSlot
+    );
+  }
+
+  for (const group of sourceGroups) {
+    if (group === projectedOpponentGroup) continue;
+    addGroupFixtures(
+      group,
+      `Can send Group ${group} third-place team to ${path.slot}`,
+      "annexe-source",
+      30,
+      path.slot
+    );
+  }
+
+  if (pathDependsOnThirdPlaceOpponent(path, scenario)) {
+    for (const row of (model.thirdRankings || []).slice(5, 10)) {
+      if (!row?.group || excludedGroups.has(row.group)) continue;
+      addGroupFixtures(row.group, "Can change the third-place cutoff", "third-place-cutoff", 40, path.slot);
+    }
+  }
+
+  return Array.from(items.values()).sort(
+    (a, b) =>
+      a.priority - b.priority ||
+      new Date(a.fixture.date) - new Date(b.fixture.date) ||
+      String(a.fixture.id).localeCompare(String(b.fixture.id))
+  );
+}
+
+function isPathSlotFixed(path) {
+  if (path.winnerClinched) return true;
+  return path.qualified && path.rank <= 2 && groupRemainingFixtures(path.group).length === 0;
+}
+
+function remainingFixturesForGroup(group) {
+  return groupRemainingFixtures(group).sort(
+    (a, b) => new Date(a.date) - new Date(b.date) || String(a.id).localeCompare(String(b.id))
+  );
+}
+
+function pathDependsOnThirdPlaceOpponent(path, scenario) {
+  return (
+    path.opponentSlot?.startsWith("3") ||
+    (scenario.opponentDistribution || []).some((entry) => entry.slot?.startsWith("3"))
+  );
+}
+
+function slotGroup(slot) {
+  const match = String(slot || "").match(/^[123]([A-L])$/);
+  return match ? match[1] : null;
+}
+
 function slotDescription(slot) {
   if (!slot) return "another third-place group";
   if (slot.startsWith("1")) return `Group ${slot[1]} winner`;
@@ -1505,7 +1600,7 @@ function renderPath(model) {
   grid.appendChild(renderOpponentDistribution(scenario.opponentDistribution));
   grid.appendChild(renderPathSection("Why this is the path", pathFacts(path, model, scenario)));
   grid.appendChild(renderPathSection("What can change this", scenario.changeDrivers));
-  grid.appendChild(renderImportantMatches(path, model));
+  grid.appendChild(renderImportantMatches(scenario, model));
   els.pathBrowser.appendChild(grid);
 }
 
@@ -1602,23 +1697,20 @@ function renderPathSection(title, items) {
   return section;
 }
 
-function renderImportantMatches(path, model) {
+function renderImportantMatches(scenario, model) {
   const section = el("section", "path-panel important-matches");
   section.appendChild(el("h3", "", "Matches that matter"));
-  const groups = new Set([path.group]);
-  if (path.opponentSlot?.startsWith("3")) groups.add(path.opponentSlot[1]);
-  if (path.opponent?.group) groups.add(path.opponent.group);
-  const fixtures = state.fixtures
-    .filter((fixture) => groups.has(fixture.group) && !isLockedFixture(fixture))
-    .sort((a, b) => new Date(a.date) - new Date(b.date));
+  const matches = importantMatchesForPathScenario(scenario, model);
   const list = el("div", "path-card-list");
-  for (const fixture of fixtures) {
+  for (const item of matches) {
+    const fixture = item.fixture;
     const card = el("div", "path-card match-watch");
     card.appendChild(el("strong", "", `${fixture.home.name} vs ${fixture.away.name}`));
     card.appendChild(el("span", "", `Group ${fixture.group} | ${formatTime(fixture.date)}`));
+    card.appendChild(el("span", "source-pill", item.reason));
     list.appendChild(card);
   }
-  if (!fixtures.length) list.appendChild(el("div", "path-card", "No remaining group matches directly affect this path."));
+  if (!matches.length) list.appendChild(el("div", "path-card", "No remaining group matches directly affect this path."));
   section.appendChild(list);
   return section;
 }

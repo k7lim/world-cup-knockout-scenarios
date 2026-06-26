@@ -19,6 +19,7 @@ globalThis.__test = {
     computeTournament,
     computeTeamPathScenarios,
     annexeDestinationsForThirdGroup,
+    importantMatchesForPathScenario,
     safeNumber,
     teamFlagEmoji,
     teamShortName,
@@ -83,6 +84,88 @@ function liveFixture() {
 
 function plain(value) {
   return JSON.parse(JSON.stringify(value));
+}
+
+function seedGroups(state, namesByGroup = {}) {
+  const teamsByGroup = new Map();
+  for (const group of "ABCDEFGHIJKL") {
+    const names =
+      namesByGroup[group] ||
+      [`${group} One`, `${group} Two`, `${group} Three`, `${group} Four`];
+    const teams = names.map((name, index) => ({
+      id: group.charCodeAt(0) * 10 + index,
+      name,
+      group,
+      officialRank: index + 1,
+    }));
+    teamsByGroup.set(group, teams);
+    state.standingsGroups.set(group, teams);
+    for (const team of teams) {
+      state.teamMeta.set(team.id, { id: team.id, name: team.name, logo: "" });
+      state.teamGroup.set(team.id, group);
+    }
+  }
+  return teamsByGroup;
+}
+
+function addFixture(fixtures, teamsByGroup, group, homeIndex, awayIndex, home, away, statusShort = "FT") {
+  const teams = teamsByGroup.get(group);
+  const fixture = {
+    id: fixtures.length + 1000,
+    group,
+    date: `2026-06-${String(fixtures.length + 1).padStart(2, "0")}T20:00:00.000Z`,
+    statusShort,
+    goals: statusShort === "FT" ? { home, away } : { home: null, away: null },
+    home: teams[homeIndex],
+    away: teams[awayIndex],
+  };
+  fixtures.push(fixture);
+  return fixture;
+}
+
+function addProjectedGroup(fixtures, teamsByGroup, predictions, group, highThird = true) {
+  const scores = highThird
+    ? [
+        [0, 1, 2, 0],
+        [0, 2, 2, 0],
+        [0, 3, 2, 0],
+        [1, 2, 1, 0],
+        [1, 3, 1, 0],
+        [2, 3, 1, 0],
+      ]
+    : [
+        [0, 1, 2, 0],
+        [0, 2, 2, 0],
+        [0, 3, 2, 0],
+        [1, 2, 2, 0],
+        [1, 3, 2, 0],
+        [2, 3, 0, 0],
+      ];
+  for (const [homeIndex, awayIndex, home, away] of scores) {
+    const fixture = addFixture(fixtures, teamsByGroup, group, homeIndex, awayIndex, null, null, "NS");
+    predictions[fixture.id] = { home, away, source: "manual" };
+  }
+}
+
+function seedAnnexePathScenario(state) {
+  const teamsByGroup = seedGroups(state, {
+    B: ["B One", "B Two", "Bosnia & Herzegovina", "B Four"],
+    D: ["USA", "Australia", "Paraguay", "Turkey"],
+  });
+  const fixtures = [];
+
+  addFixture(fixtures, teamsByGroup, "D", 0, 1, 2, 0);
+  addFixture(fixtures, teamsByGroup, "D", 0, 2, 4, 1);
+  addFixture(fixtures, teamsByGroup, "D", 0, 3, 1, 0);
+  addFixture(fixtures, teamsByGroup, "D", 1, 2, 2, 0);
+  addFixture(fixtures, teamsByGroup, "D", 1, 3, 2, 0);
+  addFixture(fixtures, teamsByGroup, "D", 2, 3, 0, 0);
+
+  for (const group of "ABCEFGHIJKL") {
+    addProjectedGroup(fixtures, teamsByGroup, state.predictions, group, "BFGHIJKL".includes(group));
+  }
+
+  state.fixtures = fixtures;
 }
 
 test("manual prediction overrides provisional live score", () => {
@@ -151,11 +234,20 @@ test("played-only group status ignores editable predictions", () => {
 });
 
 test("same-group ranking uses head-to-head before overall goal difference", () => {
-  const { state, computeTournament, normalizeLocalSeed } = loadApp();
-  const seed = require("../data/world-cup-2026-seed.json");
-  normalizeLocalSeed(seed);
-  state.predictions[2026023] = { home: 1, away: 0, source: "manual" };
-  state.predictions[2026024] = { home: 0, away: 5, source: "manual" };
+  const { state, computeTournament } = loadApp();
+  const teamsByGroup = seedGroups(state, {
+    D: ["USA", "Australia", "Paraguay", "Turkey"],
+  });
+  const fixtures = [];
+  addFixture(fixtures, teamsByGroup, "D", 0, 2, 4, 1);
+  addFixture(fixtures, teamsByGroup, "D", 1, 3, 2, 0);
+  addFixture(fixtures, teamsByGroup, "D", 0, 1, 2, 0);
+  addFixture(fixtures, teamsByGroup, "D", 3, 2, 0, 1);
+  const turkeyUsa = addFixture(fixtures, teamsByGroup, "D", 3, 0, null, null, "NS");
+  const paraguayAustralia = addFixture(fixtures, teamsByGroup, "D", 2, 1, null, null, "NS");
+  state.fixtures = fixtures;
+  state.predictions[turkeyUsa.id] = { home: 1, away: 0, source: "manual" };
+  state.predictions[paraguayAustralia.id] = { home: 0, away: 5, source: "manual" };
 
   const groupD = computeTournament().rankedGroups.get("D");
 
@@ -206,10 +298,9 @@ test("team path scenarios mark a completed fourth-place team as eliminated", () 
 });
 
 test("USA path scenarios show alternative Annexe opponents and concrete change drivers", () => {
-  const { state, computeTournament, computeTeamPathScenarios, normalizeLocalSeed } = loadApp();
-  const seed = require("../data/world-cup-2026-seed.json");
-  normalizeLocalSeed(seed);
+  const { state, computeTournament, computeTeamPathScenarios, importantMatchesForPathScenario } = loadApp();
   state.annexe = require("../data/annexe-c.json");
+  seedAnnexePathScenario(state);
 
   const scenario = computeTeamPathScenarios("USA", computeTournament());
   const bosnia = scenario.opponentDistribution.find((entry) => entry.teamName === "Bosnia & Herzegovina");
@@ -222,10 +313,19 @@ test("USA path scenarios show alternative Annexe opponents and concrete change d
   assert.equal(bosnia.currentProjection, true);
   assert.match(scenario.changeDrivers.join(" "), /BEGHIJKL/);
   assert.match(scenario.changeDrivers.join(" "), /Group I/);
+
+  const matchesThatMatter = importantMatchesForPathScenario(scenario, computeTournament());
+  const groupsByReason = matchesThatMatter.map((item) => `${item.fixture.group}:${item.reason}`);
+  assert.ok(groupsByReason.some((item) => item.startsWith("E:Can send Group E third-place team to 1D")));
+  assert.ok(groupsByReason.some((item) => item.startsWith("F:Can send Group F third-place team to 1D")));
+  assert.ok(groupsByReason.some((item) => item.startsWith("I:Can send Group I third-place team to 1D")));
+  assert.ok(groupsByReason.some((item) => item.startsWith("J:Can send Group J third-place team to 1D")));
+  assert.equal(groupsByReason.some((item) => item === "D:Can change USA's slot"), false);
+  assert.ok(matchesThatMatter.some((item) => item.category === "third-place-cutoff"));
 });
 
 test("Annexe opponent scenarios exclude completed third-place groups that are mathematically out", () => {
-  const { state, computeTournament, computeTeamPathScenarios } = loadApp();
+  const { state, computeTournament, computeTeamPathScenarios, importantMatchesForPathScenario } = loadApp();
   const teamsByGroup = new Map();
   const fixtures = [];
   let fixtureId = 1000;
@@ -287,9 +387,12 @@ test("Annexe opponent scenarios exclude completed third-place groups that are ma
   state.annexe = require("../data/annexe-c.json");
 
   const scenario = computeTeamPathScenarios("USA", computeTournament());
+  const matchesThatMatter = importantMatchesForPathScenario(scenario, computeTournament());
 
   assert.equal(scenario.annexeConstraints.excluded.includes("I"), true);
   assert.equal(scenario.opponentDistribution.some((entry) => entry.slot === "3I"), false);
+  assert.equal(matchesThatMatter.some((item) => item.group === "I" && item.category === "annexe-source"), false);
+  assert.equal(matchesThatMatter.some((item) => item.group === "B" && item.category === "projected-opponent"), false);
   assert.equal(scenario.opponentDistribution[0].total, 165);
   assert.deepEqual(
     plain(scenario.opponentDistribution.map((entry) => [entry.slot, entry.count])),
