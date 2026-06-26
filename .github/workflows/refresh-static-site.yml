@@ -61,9 +61,6 @@ jobs:
           restore-keys: |
             odds-refresh-cache-${{ steps.target.outputs.branch }}-
 
-      - run: npm test
-        if: github.event_name != 'schedule' || steps.refresh-decision.outputs.active == 'true'
-
       - run: npm run export:static
         if: github.event_name != 'schedule' || steps.refresh-decision.outputs.active == 'true'
         env:
@@ -71,6 +68,9 @@ jobs:
           THE_ODDS_API_KEY: ${{ secrets.THE_ODDS_API_KEY }}
           ODDS_API_IO_KEY: ${{ secrets.ODDS_API_IO_KEY }}
           ODDS_API_IO_BASE: ${{ vars.ODDS_API_IO_BASE }}
+
+      - run: npm test
+        if: github.event_name != 'schedule' || steps.refresh-decision.outputs.active == 'true'
 
       - name: Commit refreshed snapshot
         if: github.event_name != 'schedule' || steps.refresh-decision.outputs.active == 'true'
