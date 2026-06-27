@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "name": "World Cup 2026 Local Tournament File",
-  "updatedAtUtc": "2026-06-27T03:47:38.302Z",
+  "updatedAtUtc": "2026-06-27T05:23:17.235Z",
   "source": {
     "name": "openfootball/worldcup.json",
     "url": "https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json",
-    "rawUrl": "https://raw.githubusercontent.com/openfootball/worldcup.json/35e0fa46ca1f367da6471b310d06fd05aa27e4f3/2026/worldcup.json",
+    "rawUrl": "https://raw.githubusercontent.com/openfootball/worldcup.json/df8dc798a499184dd6b868763a46a2248998830b/2026/worldcup.json",
     "ref": "master",
     "path": "2026/worldcup.json",
-    "commitSha": "35e0fa46ca1f367da6471b310d06fd05aa27e4f3",
-    "commitDateUtc": "2026-06-27T02:05:57Z",
-    "commitUrl": "https://github.com/openfootball/worldcup.json/commit/35e0fa46ca1f367da6471b310d06fd05aa27e4f3",
+    "commitSha": "df8dc798a499184dd6b868763a46a2248998830b",
+    "commitDateUtc": "2026-06-27T05:06:00Z",
+    "commitUrl": "https://github.com/openfootball/worldcup.json/commit/df8dc798a499184dd6b868763a46a2248998830b",
     "license": "CC0-1.0",
     "note": "Public-domain hand-maintained fixture/results snapshot pinned to the latest upstream commit touching 2026/worldcup.json."
   },
@@ -1426,8 +1426,8 @@
         "name": "Seattle",
         "city": "Seattle"
       },
-      "statusShort": "NS",
-      "statusLong": "Not Started",
+      "statusShort": "FT",
+      "statusLong": "Match Finished",
       "home": {
         "id": 260026,
         "name": "Egypt",
@@ -1439,8 +1439,8 @@
         "logo": ""
       },
       "goals": {
-        "home": null,
-        "away": null
+        "home": 1,
+        "away": 1
       }
     },
     {
@@ -1452,8 +1452,8 @@
         "name": "Vancouver",
         "city": "Vancouver"
       },
-      "statusShort": "NS",
-      "statusLong": "Not Started",
+      "statusShort": "FT",
+      "statusLong": "Match Finished",
       "home": {
         "id": 260028,
         "name": "New Zealand",
@@ -1465,8 +1465,8 @@
         "logo": ""
       },
       "goals": {
-        "home": null,
-        "away": null
+        "home": 1,
+        "away": 5
       }
     },
     {
@@ -2251,20 +2251,10 @@
     }
   ],
   "staticExport": {
-    "exportedAtUtc": "2026-06-27T03:47:39.269Z",
+    "exportedAtUtc": "2026-06-27T05:23:17.331Z",
     "note": "GitHub Pages snapshot. Rebuilt by scheduled workflow; odds evidence includes per-fixture stale metadata."
   },
   "predictions": {
-    "2026041": {
-      "home": 2,
-      "away": 2,
-      "source": "odds"
-    },
-    "2026042": {
-      "home": 0,
-      "away": 3,
-      "source": "odds"
-    },
     "2026059": {
       "home": 1,
       "away": 1,
@@ -2297,60 +2287,6 @@
     }
   },
   "marketEvidence": {
-    "2026041": {
-      "marketUsed": "1x2_totals_spread",
-      "confidence": "medium",
-      "probability": 0.424,
-      "probabilities": {
-        "home": 0.337,
-        "draw": 0.424,
-        "away": 0.239
-      },
-      "expectedGoals": {
-        "home": 1.7,
-        "away": 1.45
-      },
-      "totalGoalsLine": 3.23,
-      "goalDifferenceLine": 0.29,
-      "bookmakerCount": 36,
-      "fallbackUsed": true,
-      "topCorrectScores": null,
-      "updatedAtUtc": "2026-06-27T03:47:38.306Z",
-      "staleAfterMs": 32400000,
-      "stale": false,
-      "providers": {
-        "theOddsApi": {
-          "eventId": "3e3b5fa2b3c963e74cf044c60db0b573"
-        }
-      }
-    },
-    "2026042": {
-      "marketUsed": "1x2_totals_spread",
-      "confidence": "medium",
-      "probability": 0.908,
-      "probabilities": {
-        "home": 0.021,
-        "draw": 0.071,
-        "away": 0.908
-      },
-      "expectedGoals": {
-        "home": 0.5,
-        "away": 2.85
-      },
-      "totalGoalsLine": 3.36,
-      "goalDifferenceLine": -2.17,
-      "bookmakerCount": 35,
-      "fallbackUsed": true,
-      "topCorrectScores": null,
-      "updatedAtUtc": "2026-06-27T03:47:38.306Z",
-      "staleAfterMs": 32400000,
-      "stale": false,
-      "providers": {
-        "theOddsApi": {
-          "eventId": "581691da05dcd75b5c6d3be91ee9d2ab"
-        }
-      }
-    },
     "2026059": {
       "marketUsed": "1x2_totals_spread",
       "confidence": "medium",
@@ -2521,8 +2457,9 @@
       "error": null
     },
     "oddsApiIo": {
-      "ok": false,
-      "error": "No Odds-API.io events matched eligible fixtures."
+      "ok": true,
+      "error": null,
+      "skipped": "fresh cache"
     }
   },
   "predictionSource": {
@@ -2539,5 +2476,5 @@
       "Odds-API.io"
     ]
   },
-  "predictionsExportedAtUtc": "2026-06-27T03:47:39.269Z"
+  "predictionsExportedAtUtc": "2026-06-27T05:23:17.331Z"
 }

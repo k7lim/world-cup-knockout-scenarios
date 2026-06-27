@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "name": "World Cup 2026 Local Tournament File",
-  "updatedAtUtc": "2026-06-27T03:47:38.302Z",
+  "updatedAtUtc": "2026-06-27T05:23:17.235Z",
   "source": {
     "name": "openfootball/worldcup.json",
     "url": "https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json",
-    "rawUrl": "https://raw.githubusercontent.com/openfootball/worldcup.json/35e0fa46ca1f367da6471b310d06fd05aa27e4f3/2026/worldcup.json",
+    "rawUrl": "https://raw.githubusercontent.com/openfootball/worldcup.json/df8dc798a499184dd6b868763a46a2248998830b/2026/worldcup.json",
     "ref": "master",
     "path": "2026/worldcup.json",
-    "commitSha": "35e0fa46ca1f367da6471b310d06fd05aa27e4f3",
-    "commitDateUtc": "2026-06-27T02:05:57Z",
-    "commitUrl": "https://github.com/openfootball/worldcup.json/commit/35e0fa46ca1f367da6471b310d06fd05aa27e4f3",
+    "commitSha": "df8dc798a499184dd6b868763a46a2248998830b",
+    "commitDateUtc": "2026-06-27T05:06:00Z",
+    "commitUrl": "https://github.com/openfootball/worldcup.json/commit/df8dc798a499184dd6b868763a46a2248998830b",
     "license": "CC0-1.0",
     "note": "Public-domain hand-maintained fixture/results snapshot pinned to the latest upstream commit touching 2026/worldcup.json."
   },
@@ -1426,8 +1426,8 @@
         "name": "Seattle",
         "city": "Seattle"
       },
-      "statusShort": "NS",
-      "statusLong": "Not Started",
+      "statusShort": "FT",
+      "statusLong": "Match Finished",
       "home": {
         "id": 260026,
         "name": "Egypt",
@@ -1439,8 +1439,8 @@
         "logo": ""
       },
       "goals": {
-        "home": null,
-        "away": null
+        "home": 1,
+        "away": 1
       }
     },
     {
@@ -1452,8 +1452,8 @@
         "name": "Vancouver",
         "city": "Vancouver"
       },
-      "statusShort": "NS",
-      "statusLong": "Not Started",
+      "statusShort": "FT",
+      "statusLong": "Match Finished",
       "home": {
         "id": 260028,
         "name": "New Zealand",
@@ -1465,8 +1465,8 @@
         "logo": ""
       },
       "goals": {
-        "home": null,
-        "away": null
+        "home": 1,
+        "away": 5
       }
     },
     {
