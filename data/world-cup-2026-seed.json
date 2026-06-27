@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "name": "World Cup 2026 Local Tournament File",
-  "updatedAtUtc": "2026-06-27T01:22:15.971Z",
+  "updatedAtUtc": "2026-06-27T02:22:26.432Z",
   "source": {
     "name": "openfootball/worldcup.json",
     "url": "https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json",
-    "rawUrl": "https://raw.githubusercontent.com/openfootball/worldcup.json/7869b530a123b45446c5364fa1b4c5c1c164639d/2026/worldcup.json",
+    "rawUrl": "https://raw.githubusercontent.com/openfootball/worldcup.json/35e0fa46ca1f367da6471b310d06fd05aa27e4f3/2026/worldcup.json",
     "ref": "master",
     "path": "2026/worldcup.json",
-    "commitSha": "7869b530a123b45446c5364fa1b4c5c1c164639d",
-    "commitDateUtc": "2026-06-26T21:05:58Z",
-    "commitUrl": "https://github.com/openfootball/worldcup.json/commit/7869b530a123b45446c5364fa1b4c5c1c164639d",
+    "commitSha": "35e0fa46ca1f367da6471b310d06fd05aa27e4f3",
+    "commitDateUtc": "2026-06-27T02:05:57Z",
+    "commitUrl": "https://github.com/openfootball/worldcup.json/commit/35e0fa46ca1f367da6471b310d06fd05aa27e4f3",
     "license": "CC0-1.0",
     "note": "Public-domain hand-maintained fixture/results snapshot pinned to the latest upstream commit touching 2026/worldcup.json."
   },
@@ -1582,8 +1582,8 @@
         "name": "Houston",
         "city": "Houston"
       },
-      "statusShort": "NS",
-      "statusLong": "Not Started",
+      "statusShort": "FT",
+      "statusLong": "Match Finished",
       "home": {
         "id": 260030,
         "name": "Cape Verde",
@@ -1595,8 +1595,8 @@
         "logo": ""
       },
       "goals": {
-        "home": null,
-        "away": null
+        "home": 0,
+        "away": 0
       }
     },
     {
@@ -1608,8 +1608,8 @@
         "name": "Guadalajara (Zapopan)",
         "city": "Guadalajara"
       },
-      "statusShort": "NS",
-      "statusLong": "Not Started",
+      "statusShort": "FT",
+      "statusLong": "Match Finished",
       "home": {
         "id": 260032,
         "name": "Uruguay",
@@ -1621,8 +1621,8 @@
         "logo": ""
       },
       "goals": {
-        "home": null,
-        "away": null
+        "home": 0,
+        "away": 1
       }
     },
     {

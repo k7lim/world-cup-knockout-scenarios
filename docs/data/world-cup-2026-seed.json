@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "name": "World Cup 2026 Local Tournament File",
-  "updatedAtUtc": "2026-06-27T01:22:15.971Z",
+  "updatedAtUtc": "2026-06-27T02:22:26.432Z",
   "source": {
     "name": "openfootball/worldcup.json",
     "url": "https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json",
-    "rawUrl": "https://raw.githubusercontent.com/openfootball/worldcup.json/7869b530a123b45446c5364fa1b4c5c1c164639d/2026/worldcup.json",
+    "rawUrl": "https://raw.githubusercontent.com/openfootball/worldcup.json/35e0fa46ca1f367da6471b310d06fd05aa27e4f3/2026/worldcup.json",
     "ref": "master",
     "path": "2026/worldcup.json",
-    "commitSha": "7869b530a123b45446c5364fa1b4c5c1c164639d",
-    "commitDateUtc": "2026-06-26T21:05:58Z",
-    "commitUrl": "https://github.com/openfootball/worldcup.json/commit/7869b530a123b45446c5364fa1b4c5c1c164639d",
+    "commitSha": "35e0fa46ca1f367da6471b310d06fd05aa27e4f3",
+    "commitDateUtc": "2026-06-27T02:05:57Z",
+    "commitUrl": "https://github.com/openfootball/worldcup.json/commit/35e0fa46ca1f367da6471b310d06fd05aa27e4f3",
     "license": "CC0-1.0",
     "note": "Public-domain hand-maintained fixture/results snapshot pinned to the latest upstream commit touching 2026/worldcup.json."
   },
@@ -1582,8 +1582,8 @@
         "name": "Houston",
         "city": "Houston"
       },
-      "statusShort": "NS",
-      "statusLong": "Not Started",
+      "statusShort": "FT",
+      "statusLong": "Match Finished",
       "home": {
         "id": 260030,
         "name": "Cape Verde",
@@ -1595,8 +1595,8 @@
         "logo": ""
       },
       "goals": {
-        "home": null,
-        "away": null
+        "home": 0,
+        "away": 0
       }
     },
     {
@@ -1608,8 +1608,8 @@
         "name": "Guadalajara (Zapopan)",
         "city": "Guadalajara"
       },
-      "statusShort": "NS",
-      "statusLong": "Not Started",
+      "statusShort": "FT",
+      "statusLong": "Match Finished",
       "home": {
         "id": 260032,
         "name": "Uruguay",
@@ -1621,8 +1621,8 @@
         "logo": ""
       },
       "goals": {
-        "home": null,
-        "away": null
+        "home": 0,
+        "away": 1
       }
     },
     {
@@ -2251,7 +2251,7 @@
     }
   ],
   "staticExport": {
-    "exportedAtUtc": "2026-06-27T01:22:16.116Z",
+    "exportedAtUtc": "2026-06-27T02:22:26.551Z",
     "note": "GitHub Pages snapshot. Rebuilt by scheduled workflow; odds evidence includes per-fixture stale metadata."
   },
   "predictions": {
@@ -2263,16 +2263,6 @@
     "2026042": {
       "home": 1,
       "away": 3,
-      "source": "odds"
-    },
-    "2026047": {
-      "home": 2,
-      "away": 1,
-      "source": "odds"
-    },
-    "2026048": {
-      "home": 1,
-      "away": 2,
       "source": "odds"
     },
     "2026059": {
@@ -2358,60 +2348,6 @@
       "providers": {
         "theOddsApi": {
           "eventId": "581691da05dcd75b5c6d3be91ee9d2ab"
-        }
-      }
-    },
-    "2026047": {
-      "marketUsed": "1x2_totals_spread",
-      "confidence": "medium",
-      "probability": 0.361,
-      "probabilities": {
-        "home": 0.361,
-        "draw": 0.288,
-        "away": 0.351
-      },
-      "expectedGoals": {
-        "home": 1.2,
-        "away": 1.15
-      },
-      "totalGoalsLine": 2.38,
-      "goalDifferenceLine": 0.04,
-      "bookmakerCount": 48,
-      "fallbackUsed": true,
-      "topCorrectScores": null,
-      "updatedAtUtc": "2026-06-26T21:34:24.048Z",
-      "staleAfterMs": 32400000,
-      "stale": false,
-      "providers": {
-        "theOddsApi": {
-          "eventId": "e07b1926be5a4d515c7eb108dbcee9c5"
-        }
-      }
-    },
-    "2026048": {
-      "marketUsed": "1x2_totals_spread",
-      "confidence": "medium",
-      "probability": 0.59,
-      "probabilities": {
-        "home": 0.152,
-        "draw": 0.258,
-        "away": 0.59
-      },
-      "expectedGoals": {
-        "home": 0.75,
-        "away": 1.65
-      },
-      "totalGoalsLine": 2.4,
-      "goalDifferenceLine": -0.91,
-      "bookmakerCount": 48,
-      "fallbackUsed": true,
-      "topCorrectScores": null,
-      "updatedAtUtc": "2026-06-26T21:34:24.048Z",
-      "staleAfterMs": 32400000,
-      "stale": false,
-      "providers": {
-        "theOddsApi": {
-          "eventId": "dcff2e31c0bce001a4db5caaf4fa8822"
         }
       }
     },
@@ -2604,5 +2540,5 @@
       "Odds-API.io"
     ]
   },
-  "predictionsExportedAtUtc": "2026-06-27T01:22:16.116Z"
+  "predictionsExportedAtUtc": "2026-06-27T02:22:26.551Z"
 }
