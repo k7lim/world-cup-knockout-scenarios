@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "name": "World Cup 2026 Local Tournament File",
-  "updatedAtUtc": "2026-06-28T01:17:06.834Z",
+  "updatedAtUtc": "2026-06-28T02:23:15.193Z",
   "source": {
     "name": "openfootball/worldcup.json",
     "url": "https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json",
-    "rawUrl": "https://raw.githubusercontent.com/openfootball/worldcup.json/b1d5cee0b570170f76ef4c1505d19f66cef59d5e/2026/worldcup.json",
+    "rawUrl": "https://raw.githubusercontent.com/openfootball/worldcup.json/de12b3aed4f35ca807a2785ea11fe71cc7af78f0/2026/worldcup.json",
     "ref": "master",
     "path": "2026/worldcup.json",
-    "commitSha": "b1d5cee0b570170f76ef4c1505d19f66cef59d5e",
-    "commitDateUtc": "2026-06-27T23:01:41Z",
-    "commitUrl": "https://github.com/openfootball/worldcup.json/commit/b1d5cee0b570170f76ef4c1505d19f66cef59d5e",
+    "commitSha": "de12b3aed4f35ca807a2785ea11fe71cc7af78f0",
+    "commitDateUtc": "2026-06-28T01:35:58Z",
+    "commitUrl": "https://github.com/openfootball/worldcup.json/commit/de12b3aed4f35ca807a2785ea11fe71cc7af78f0",
     "license": "CC0-1.0",
     "note": "Public-domain hand-maintained fixture/results snapshot pinned to the latest upstream commit touching 2026/worldcup.json."
   },
@@ -2050,8 +2050,8 @@
         "name": "Miami (Miami Gardens)",
         "city": "Miami"
       },
-      "statusShort": "NS",
-      "statusLong": "Not Started",
+      "statusShort": "FT",
+      "statusLong": "Match Finished",
       "home": {
         "id": 260044,
         "name": "Colombia",
@@ -2063,8 +2063,8 @@
         "logo": ""
       },
       "goals": {
-        "home": null,
-        "away": null
+        "home": 0,
+        "away": 0
       }
     },
     {
@@ -2076,8 +2076,8 @@
         "name": "Atlanta",
         "city": "Atlanta"
       },
-      "statusShort": "NS",
-      "statusLong": "Not Started",
+      "statusShort": "FT",
+      "statusLong": "Match Finished",
       "home": {
         "id": 260042,
         "name": "DR Congo",
@@ -2089,8 +2089,8 @@
         "logo": ""
       },
       "goals": {
-        "home": null,
-        "away": null
+        "home": 3,
+        "away": 1
       }
     },
     {
