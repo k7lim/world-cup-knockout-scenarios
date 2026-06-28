@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "name": "World Cup 2026 Local Tournament File",
-  "updatedAtUtc": "2026-06-28T03:48:25.026Z",
+  "updatedAtUtc": "2026-06-28T05:36:38.330Z",
   "source": {
     "name": "openfootball/worldcup.json",
     "url": "https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json",
-    "rawUrl": "https://raw.githubusercontent.com/openfootball/worldcup.json/de12b3aed4f35ca807a2785ea11fe71cc7af78f0/2026/worldcup.json",
+    "rawUrl": "https://raw.githubusercontent.com/openfootball/worldcup.json/cb49d70f594d1d1114efcb57f0dc0668bf1af022/2026/worldcup.json",
     "ref": "master",
     "path": "2026/worldcup.json",
-    "commitSha": "de12b3aed4f35ca807a2785ea11fe71cc7af78f0",
-    "commitDateUtc": "2026-06-28T01:35:58Z",
-    "commitUrl": "https://github.com/openfootball/worldcup.json/commit/de12b3aed4f35ca807a2785ea11fe71cc7af78f0",
+    "commitSha": "cb49d70f594d1d1114efcb57f0dc0668bf1af022",
+    "commitDateUtc": "2026-06-28T04:01:25Z",
+    "commitUrl": "https://github.com/openfootball/worldcup.json/commit/cb49d70f594d1d1114efcb57f0dc0668bf1af022",
     "license": "CC0-1.0",
     "note": "Public-domain hand-maintained fixture/results snapshot pinned to the latest upstream commit touching 2026/worldcup.json."
   },
@@ -1894,8 +1894,8 @@
         "name": "Kansas City",
         "city": "Kansas City"
       },
-      "statusShort": "NS",
-      "statusLong": "Not Started",
+      "statusShort": "FT",
+      "statusLong": "Match Finished",
       "home": {
         "id": 260038,
         "name": "Algeria",
@@ -1907,8 +1907,8 @@
         "logo": ""
       },
       "goals": {
-        "home": null,
-        "away": null
+        "home": 3,
+        "away": 3
       }
     },
     {
@@ -1920,8 +1920,8 @@
         "name": "Dallas (Arlington)",
         "city": "Dallas"
       },
-      "statusShort": "NS",
-      "statusLong": "Not Started",
+      "statusShort": "FT",
+      "statusLong": "Match Finished",
       "home": {
         "id": 260040,
         "name": "Jordan",
@@ -1933,8 +1933,8 @@
         "logo": ""
       },
       "goals": {
-        "home": null,
-        "away": null
+        "home": 1,
+        "away": 3
       }
     },
     {
@@ -2251,77 +2251,11 @@
     }
   ],
   "staticExport": {
-    "exportedAtUtc": "2026-06-28T03:48:25.065Z",
+    "exportedAtUtc": "2026-06-28T05:36:38.345Z",
     "note": "GitHub Pages snapshot. Rebuilt by scheduled workflow; odds evidence includes per-fixture stale metadata."
   },
-  "predictions": {
-    "2026059": {
-      "home": 1,
-      "away": 1,
-      "source": "odds"
-    },
-    "2026060": {
-      "home": 0,
-      "away": 3,
-      "source": "odds"
-    }
-  },
-  "marketEvidence": {
-    "2026059": {
-      "marketUsed": "1x2_totals_spread",
-      "confidence": "medium",
-      "probability": 0.467,
-      "probabilities": {
-        "home": 0.27,
-        "draw": 0.467,
-        "away": 0.262
-      },
-      "expectedGoals": {
-        "home": 0.75,
-        "away": 0.75
-      },
-      "totalGoalsLine": 1.68,
-      "goalDifferenceLine": 0.04,
-      "bookmakerCount": 47,
-      "fallbackUsed": true,
-      "topCorrectScores": null,
-      "updatedAtUtc": "2026-06-27T21:30:03.714Z",
-      "staleAfterMs": 32400000,
-      "stale": false,
-      "providers": {
-        "theOddsApi": {
-          "eventId": "8756200e539155e571557c4f2e0d7f05"
-        }
-      }
-    },
-    "2026060": {
-      "marketUsed": "1x2_totals_spread",
-      "confidence": "medium",
-      "probability": 0.846,
-      "probabilities": {
-        "home": 0.048,
-        "draw": 0.106,
-        "away": 0.846
-      },
-      "expectedGoals": {
-        "home": 0.4,
-        "away": 2.75
-      },
-      "totalGoalsLine": 3.15,
-      "goalDifferenceLine": -2.36,
-      "bookmakerCount": 47,
-      "fallbackUsed": true,
-      "topCorrectScores": null,
-      "updatedAtUtc": "2026-06-27T21:30:03.714Z",
-      "staleAfterMs": 32400000,
-      "stale": false,
-      "providers": {
-        "theOddsApi": {
-          "eventId": "54697f453437ab26276d773be1d72e9b"
-        }
-      }
-    }
-  },
+  "predictions": {},
+  "marketEvidence": {},
   "oddsUnavailable": [],
   "providerStatus": {
     "theOddsApi": {
@@ -2348,5 +2282,5 @@
       "Odds-API.io"
     ]
   },
-  "predictionsExportedAtUtc": "2026-06-28T03:48:25.065Z"
+  "predictionsExportedAtUtc": "2026-06-28T05:36:38.345Z"
 }
