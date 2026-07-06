@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "name": "World Cup 2026 Local Tournament File",
-  "updatedAtUtc": "2026-07-05T23:45:48.101Z",
+  "updatedAtUtc": "2026-07-06T03:50:30.183Z",
   "source": {
     "name": "openfootball/worldcup.json",
     "url": "https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json",
-    "rawUrl": "https://raw.githubusercontent.com/openfootball/worldcup.json/65f49536a8dd876bc41595fad7637ac9ebec77cb/2026/worldcup.json",
+    "rawUrl": "https://raw.githubusercontent.com/openfootball/worldcup.json/072377f1c607ab89c7205a921bfc0e9be9c54ad7/2026/worldcup.json",
     "ref": "master",
     "path": "2026/worldcup.json",
-    "commitSha": "65f49536a8dd876bc41595fad7637ac9ebec77cb",
-    "commitDateUtc": "2026-07-05T22:06:13Z",
-    "commitUrl": "https://github.com/openfootball/worldcup.json/commit/65f49536a8dd876bc41595fad7637ac9ebec77cb",
+    "commitSha": "072377f1c607ab89c7205a921bfc0e9be9c54ad7",
+    "commitDateUtc": "2026-07-06T03:09:16Z",
+    "commitUrl": "https://github.com/openfootball/worldcup.json/commit/072377f1c607ab89c7205a921bfc0e9be9c54ad7",
     "license": "CC0-1.0",
     "note": "Public-domain hand-maintained fixture/results snapshot pinned to the latest upstream commit touching 2026/worldcup.json."
   },
